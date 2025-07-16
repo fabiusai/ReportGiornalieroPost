@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Giornaliero - Argomenti trattati</title>
+    <title>Report Giornaliero</title>
     <!-- Inserisci qui la tua favicon.ico nella stessa cartella del file html -->
     <link rel="icon" href="favicon.ico">
     
@@ -118,6 +118,14 @@
             margin-top: 30px;
             display: none;
         }
+        
+        #report-title {
+            text-align: center;
+            color: var(--brand-blue);
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
 
         .result-card {
             background-color: var(--white);
@@ -203,6 +211,10 @@
                 font-size: 1rem;
             }
             
+            #report-title {
+                font-size: 1.5rem;
+            }
+
             .upload-section, .result-card {
                 padding: 20px;
             }
@@ -216,6 +228,7 @@
 
     <header>
         <h1>Report Giornaliero</h1>
+        <!-- CORREZIONE: Da "tratti" a "trattati" -->
         <p>Argomenti trattati e numero post</p>
     </header>
 
@@ -229,6 +242,9 @@
             </section>
 
             <section id="results-container">
+                <!-- NUOVO BLOCCO: Titolo con data dinamica -->
+                <h2 id="report-title"></h2>
+
                 <!-- Blocco 1: Totale Post -->
                 <div class="result-card">
                     <div class="card-header">
@@ -278,6 +294,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInfoText = document.getElementById('file-info-text');
     const resultsContainer = document.getElementById('results-container');
     
+    // Elementi DOM per i risultati
+    const reportTitleEl = document.getElementById('report-title');
     const totalPostsEl = document.getElementById('total-posts');
     const platformCountEl = document.getElementById('platform-count');
     const topicListEl = document.getElementById('topic-list');
@@ -285,6 +303,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalButtonText = uploadButtonLabel.textContent;
 
     fileInput.addEventListener('change', handleFile);
+    
+    // Funzione helper per formattare le date
+    function formatDate(date) {
+        if (!(date instanceof Date) || isNaN(date)) return '';
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mese è 0-indexed
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
 
     function handleFile(event) {
         const file = event.target.files[0];
@@ -302,7 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const workbook = XLSX.read(data, { type: 'array' });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                // 'cellDates: true' tenta di parsare le date in oggetti Date di JS
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", cellDates: true });
 
                 processData(jsonData);
 
@@ -323,6 +351,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData(data) {
+        // --- LOGICA TITOLO E DATE ---
+        const dates = data
+            .map(row => row['Date'])
+            .filter(d => d instanceof Date && !isNaN(d)); // Filtra solo date valide
+
+        let dateString = '';
+        if (dates.length > 0) {
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            
+            const formattedMin = formatDate(minDate);
+            const formattedMax = formatDate(maxDate);
+
+            if (formattedMin === formattedMax) {
+                dateString = formattedMin;
+            } else {
+                dateString = `${formattedMin} - ${formattedMax}`;
+            }
+        }
+        reportTitleEl.textContent = `Report social ${dateString}`.trim();
+
         // 1) Totale post e condivisioni
         const totalPosts = data.length;
         totalPostsEl.textContent = totalPosts;
@@ -337,16 +386,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return acc;
         }, {});
         
-        // MODIFICA: Aggiunto .sort() per ordinare alfabeticamente per nome canale
         const platformOutput = Object.entries(platformCounts)
-            .sort((a, b) => a[0].localeCompare(b[0])) // Ordina l'array per il primo elemento (il nome)
+            .sort((a, b) => a[0].localeCompare(b[0]))
             .map(([platform, count]) => {
                 let capitalizedPlatform = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
-                
                 if (capitalizedPlatform === 'Twitter') {
                     capitalizedPlatform = 'X';
                 }
-                
                 return `${capitalizedPlatform} ${count}`;
             })
             .join(', ');
@@ -361,7 +407,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 labelParts.forEach(part => {
                     const cleanedPart = part.trim();
                     if (cleanedPart && !cleanedPart.startsWith('#')) {
-                        const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1).toLowerCase();
+                        const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
                         topics.add(formattedTopic);
                     }
                 });
