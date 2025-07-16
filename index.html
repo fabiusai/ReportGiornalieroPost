@@ -228,7 +228,6 @@
 
     <header>
         <h1>Report Giornaliero</h1>
-        <!-- CORREZIONE: Da "tratti" a "trattati" -->
         <p>Argomenti trattati e numero post</p>
     </header>
 
@@ -242,43 +241,33 @@
             </section>
 
             <section id="results-container">
-                <!-- NUOVO BLOCCO: Titolo con data dinamica -->
                 <h2 id="report-title"></h2>
 
-                <!-- Blocco 1: Totale Post -->
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Totale Post e Condivisioni</h3>
                         <button class="copy-button" data-target="#total-posts" title="Copia totale post">
-                            <span class="icon-copy">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                            </span>
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
                         </button>
                     </div>
                     <div class="card-content" id="total-posts"></div>
                 </div>
 
-                <!-- Blocco 2: Conteggio per Canale -->
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Post per Canale Social</h3>
                         <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali">
-                            <span class="icon-copy">
-                               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                            </span>
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
                         </button>
                     </div>
                     <div class="card-content" id="platform-count"></div>
                 </div>
 
-                <!-- Blocco 3: Elenco Temi -->
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Temi Trattati</h3>
                          <button class="copy-button" data-target="#topic-list" title="Copia elenco temi">
-                            <span class="icon-copy">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
-                            </span>
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
                         </button>
                     </div>
                     <pre class="card-content" id="topic-list"></pre>
@@ -294,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInfoText = document.getElementById('file-info-text');
     const resultsContainer = document.getElementById('results-container');
     
-    // Elementi DOM per i risultati
     const reportTitleEl = document.getElementById('report-title');
     const totalPostsEl = document.getElementById('total-posts');
     const platformCountEl = document.getElementById('platform-count');
@@ -303,12 +291,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalButtonText = uploadButtonLabel.textContent;
 
     fileInput.addEventListener('change', handleFile);
-    
-    // Funzione helper per formattare le date
+
+    // --- NUOVA LOGICA PER GESTIRE LE DATE IN MODO ROBUSTO ---
+    function parseDate(excelDate) {
+        // Caso 1: È già un oggetto Date valido (la libreria ha funzionato)
+        if (excelDate instanceof Date && !isNaN(excelDate)) {
+            return excelDate;
+        }
+        // Caso 2: È un numero seriale di Excel
+        if (typeof excelDate === 'number') {
+            const dateInfo = XLSX.SSF.parse_date_code(excelDate);
+            if (dateInfo) {
+                // I mesi in JS sono 0-indexed (0=Gen, 1=Feb, ...), quindi sottraiamo 1
+                return new Date(dateInfo.y, dateInfo.m - 1, dateInfo.d);
+            }
+        }
+        // Caso 3: È una stringa in formato gg/mm/aaaa
+        if (typeof excelDate === 'string') {
+            const parts = excelDate.split('/');
+            if (parts.length === 3) {
+                // Riassembliamo in formato YYYY-MM-DD per un parsing affidabile
+                const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                const date = new Date(isoDate);
+                if (!isNaN(date)) {
+                    return date;
+                }
+            }
+        }
+        // Se nessuno dei casi ha successo, non è una data valida
+        return null;
+    }
+
     function formatDate(date) {
-        if (!(date instanceof Date) || isNaN(date)) return '';
+        if (!date) return '';
         const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // Mese è 0-indexed
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
     }
@@ -326,11 +343,10 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = function(e) {
             try {
                 const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
-                // 'cellDates: true' tenta di parsare le date in oggetti Date di JS
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "", cellDates: true });
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
                 processData(jsonData);
 
@@ -351,10 +367,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData(data) {
-        // --- LOGICA TITOLO E DATE ---
+        // --- LOGICA TITOLO E DATE AGGIORNATA ---
         const dates = data
-            .map(row => row['Date'])
-            .filter(d => d instanceof Date && !isNaN(d)); // Filtra solo date valide
+            .map(row => parseDate(row['Date'])) // Usa la nuova funzione robusta
+            .filter(d => d !== null); // Filtra solo le date valide
 
         let dateString = '';
         if (dates.length > 0) {
