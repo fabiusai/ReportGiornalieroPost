@@ -63,7 +63,16 @@
         .card-content { font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; color: var(--dark-gray); }
         #total-posts { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
         
+        /* --- NUOVI STILI PER LA TABELLA DETTAGLIO --- */
         #breakdown-title { margin-top: 40px; }
+        .breakdown-table { background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .breakdown-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--medium-gray); }
+        .breakdown-row:last-child { border-bottom: none; }
+        .breakdown-row:nth-child(even) { background-color: #fcfcfc; }
+        .breakdown-row.header { font-weight: 700; color: var(--brand-blue); background-color: #f0f2f5; border-bottom: 2px solid var(--medium-gray); }
+        .topic-cell { flex: 2; font-weight: 600; padding-right: 15px; }
+        .channel-cell { flex: 3; padding-right: 15px; word-break: break-all; }
+        .button-cell { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
 
         /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
@@ -74,6 +83,10 @@
             .report-title { font-size: 1.5rem; }
             .upload-section, .result-card { padding: 20px; }
             .result-card h3 { font-size: 1.15rem; }
+            .breakdown-row { flex-wrap: wrap; padding: 10px; }
+            .topic-cell, .channel-cell { flex: 1 1 100%; padding-right: 0; }
+            .channel-cell { margin-top: 5px; }
+            .button-cell { flex: 1 1 100%; justify-content: flex-start; margin-top: 10px; }
         }
     </style>
 </head>
@@ -99,9 +112,7 @@
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Totale Post e Condivisioni</h3>
-                        <button class="copy-button" data-target="#total-posts" title="Copia totale post">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
-                        </button>
+                        <button class="copy-button" data-target="#total-posts" title="Copia totale post"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
                     </div>
                     <div class="card-content" id="total-posts"></div>
                 </div>
@@ -109,9 +120,7 @@
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Post per Canale Social</h3>
-                        <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
-                        </button>
+                        <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
                     </div>
                     <div class="card-content" id="platform-count"></div>
                 </div>
@@ -119,15 +128,13 @@
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Temi Trattati</h3>
-                         <button class="copy-button" data-target="#topic-list" title="Copia elenco temi">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
-                        </button>
+                         <button class="copy-button" data-target="#topic-list" title="Copia elenco temi"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
                     </div>
                     <pre class="card-content" id="topic-list"></pre>
                 </div>
                 
                 <h2 id="breakdown-title" class="report-title" style="display: none;">Dettaglio per Argomento</h2>
-                <div id="topic-breakdown-container"></div>
+                <div id="topic-breakdown-container" class="breakdown-table"></div>
             </section>
         </main>
     </div>
@@ -192,15 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const firstSheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
                 processData(jsonData);
-
                 uploadButtonLabel.textContent = 'File Elaborato!';
                 setTimeout(() => {
                     uploadButtonLabel.textContent = originalButtonText;
                     uploadButtonLabel.style.cursor = 'pointer';
                 }, 3000);
-
             } catch (error) {
                 console.error("Errore durante l'elaborazione del file:", error);
                 fileInfoText.textContent = 'Errore: il file non è valido o è corrotto.';
@@ -222,41 +226,28 @@ document.addEventListener('DOMContentLoaded', () => {
             dateString = (formattedMin === formattedMax) ? formattedMin : `${formattedMin} - ${formattedMax}`;
         }
         reportTitleEl.textContent = `Report social ${dateString}`.trim();
-
         totalPostsEl.textContent = data.length;
 
         const platformCounts = data.reduce((acc, row) => {
             if (row['Platform']) acc[String(row['Platform']).trim()] = (acc[String(row['Platform']).trim()] || 0) + 1;
             return acc;
         }, {});
-        
-        platformCountEl.textContent = Object.entries(platformCounts)
-            .sort((a, b) => a[0].localeCompare(b[0]))
-            .map(([platform, count]) => {
-                let p = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
-                return `${p === 'Twitter' ? 'X' : p} ${count}`;
-            })
-            .join(', ');
+        platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
 
         const topics = new Set();
         const topicPlatformCounts = {};
-
         data.forEach(row => {
             const platform = String(row['Platform'] || '').trim();
-            if (!platform) return;
-
-            const labels = row['Labels'];
-            if (labels && typeof labels === 'string') {
-                labels.split(';').forEach(part => {
-                    const cleanedPart = part.trim();
-                    if (cleanedPart && !cleanedPart.startsWith('#')) {
-                        const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
-                        topics.add(formattedTopic);
-                        if (!topicPlatformCounts[formattedTopic]) topicPlatformCounts[formattedTopic] = {};
-                        topicPlatformCounts[formattedTopic][platform] = (topicPlatformCounts[formattedTopic][platform] || 0) + 1;
-                    }
-                });
-            }
+            if (!platform || !row['Labels'] || typeof row['Labels'] !== 'string') return;
+            row['Labels'].split(';').forEach(part => {
+                const cleanedPart = part.trim();
+                if (cleanedPart && !cleanedPart.startsWith('#')) {
+                    const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
+                    topics.add(formattedTopic);
+                    if (!topicPlatformCounts[formattedTopic]) topicPlatformCounts[formattedTopic] = {};
+                    topicPlatformCounts[formattedTopic][platform] = (topicPlatformCounts[formattedTopic][platform] || 0) + 1;
+                }
+            });
         });
 
         topicListEl.textContent = [...topics].sort().join('\n');
@@ -264,42 +255,33 @@ document.addEventListener('DOMContentLoaded', () => {
         topicBreakdownContainer.innerHTML = '';
         if (Object.keys(topicPlatformCounts).length > 0) {
             breakdownTitle.style.display = 'block';
+            
+            const headerRow = document.createElement('div');
+            headerRow.className = 'breakdown-row header';
+            headerRow.innerHTML = `<div class="topic-cell">Argomento</div><div class="channel-cell">Canali</div><div class="button-cell">Azioni</div>`;
+            topicBreakdownContainer.appendChild(headerRow);
+
+            Object.keys(topicPlatformCounts).sort().forEach(topic => {
+                const channelString = Object.entries(topicPlatformCounts[topic]).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+                const row = document.createElement('div');
+                row.className = 'breakdown-row';
+                row.innerHTML = `
+                    <div class="topic-cell">${topic}</div>
+                    <div class="channel-cell">${channelString}</div>
+                    <div class="button-cell">
+                        <button class="copy-button" title="Copia argomento" data-copy-text="${topic}">
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 4H10V2H4v14h6v2h8.5c.83 0 1.5-.67 1.5-1.5v-11c0-.83-.67-1.5-1.5-1.5zM18 14h-4v-2h4v2zm0-4h-4V8h4v2zm0-4h-4V4h4v2z"/></svg></span>
+                        </button>
+                        <button class="copy-button" title="Copia canali" data-copy-text="${channelString}">
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
+                        </button>
+                    </div>
+                `;
+                topicBreakdownContainer.appendChild(row);
+            });
         } else {
             breakdownTitle.style.display = 'none';
         }
-
-        Object.keys(topicPlatformCounts).sort().forEach(topic => {
-            const card = document.createElement('div');
-            card.className = 'result-card';
-            const header = document.createElement('div');
-            header.className = 'card-header';
-            const h3 = document.createElement('h3');
-            h3.textContent = topic;
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'card-content';
-            const safeId = `content-${topic.replace(/[^a-zA-Z0-9]/g, '-')}`;
-            contentDiv.id = safeId;
-            
-            contentDiv.textContent = Object.entries(topicPlatformCounts[topic])
-                .sort((a, b) => a[0].localeCompare(b[0]))
-                .map(([platform, count]) => {
-                    let p = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
-                    return `${p === 'Twitter' ? 'X' : p} ${count}`;
-                })
-                .join(', ');
-
-            const copyButton = document.createElement('button');
-            copyButton.className = 'copy-button';
-            copyButton.title = `Copia dettaglio ${topic}`;
-            copyButton.dataset.target = `#${safeId}`;
-            copyButton.innerHTML = `<span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>`;
-            
-            header.appendChild(h3);
-            header.appendChild(copyButton);
-            card.appendChild(header);
-            card.appendChild(contentDiv);
-            topicBreakdownContainer.appendChild(card);
-        });
         
         resultsContainer.style.display = 'block';
     }
@@ -308,21 +290,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = event.target.closest('.copy-button');
         if (!button) return;
 
-        const targetId = button.dataset.target;
-        const contentElement = document.querySelector(targetId);
-        if (!contentElement) return;
-
-        let textToCopy = contentElement.textContent;
-
-        // --- MODIFICA CHIAVE: Controlla se il pulsante è nella sezione breakdown ---
-        if (button.closest('#topic-breakdown-container')) {
-            const titleElement = button.closest('.card-header').querySelector('h3');
-            if (titleElement) {
-                // Prepara la stringa includendo il titolo
-                textToCopy = `${titleElement.textContent}: ${textToCopy}`;
-            }
+        let textToCopy;
+        if (button.dataset.copyText) {
+            textToCopy = button.dataset.copyText;
+        } else if (button.dataset.target) {
+            const contentElement = document.querySelector(button.dataset.target);
+            if(contentElement) textToCopy = contentElement.textContent;
         }
-        
+
+        if (!textToCopy) return;
+
         navigator.clipboard.writeText(textToCopy).then(() => {
             const icon = button.querySelector('.icon-copy');
             if (!icon) return;
