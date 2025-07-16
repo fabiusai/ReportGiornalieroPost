@@ -16,7 +16,7 @@
 
         :root {
             --brand-blue: #003366;
-            --brand-yellow: #f4e600; /* NUOVO COLORE GIALLO */
+            --brand-yellow: #f4e600;
             --light-gray: #f5f7fa;
             --medium-gray: #e1e4e8;
             --dark-gray: #24292e;
@@ -51,7 +51,7 @@
             color: var(--white);
             padding: 25px 30px;
             text-align: center;
-            border-bottom: 5px solid var(--brand-yellow); /* Giallo aggiornato */
+            border-bottom: 5px solid var(--brand-yellow);
         }
 
         header h1 {
@@ -62,7 +62,7 @@
 
         header p {
             font-size: 1.1rem;
-            color: var(--brand-yellow); /* Giallo aggiornato */
+            color: var(--brand-yellow);
             font-weight: 600;
         }
 
@@ -91,7 +91,7 @@
 
         .upload-button {
             display: inline-block;
-            background-color: var(--brand-yellow); /* Giallo aggiornato */
+            background-color: var(--brand-yellow);
             color: var(--brand-blue);
             padding: 12px 25px;
             border-radius: 5px;
@@ -99,11 +99,11 @@
             font-weight: 700;
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.2s ease;
-            border: 2px solid var(--brand-yellow); /* Giallo aggiornato */
+            border: 2px solid var(--brand-yellow);
         }
 
         .upload-button:hover {
-            background-color: #e0d300; /* Sfumatura più scura del nuovo giallo */
+            background-color: #e0d300;
             transform: translateY(-2px);
         }
         
@@ -136,7 +136,6 @@
             margin-bottom: 15px;
         }
 
-        /* MODIFICA GRAFICA: Aggiunto bordo giallo ai titoli per maggiore risalto */
         .result-card h3 {
             color: var(--brand-blue);
             font-size: 1.25rem;
@@ -178,8 +177,6 @@
             white-space: pre-wrap;
             word-wrap: break-word;
             color: var(--dark-gray);
-            max-height: 300px;
-            overflow-y: auto;
         }
         
         #total-posts {
@@ -209,7 +206,6 @@
             .upload-section, .result-card {
                 padding: 20px;
             }
-             /* Adatta il titolo con bordo per schermi piccoli */
             .result-card h3 {
                 font-size: 1.15rem;
             }
@@ -341,11 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return acc;
         }, {});
         
+        // MODIFICA: Aggiunto .sort() per ordinare alfabeticamente per nome canale
         const platformOutput = Object.entries(platformCounts)
+            .sort((a, b) => a[0].localeCompare(b[0])) // Ordina l'array per il primo elemento (il nome)
             .map(([platform, count]) => {
                 let capitalizedPlatform = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
                 
-                // MODIFICA LOGICA: Sostituisci "Twitter" con "X"
                 if (capitalizedPlatform === 'Twitter') {
                     capitalizedPlatform = 'X';
                 }
