@@ -24,11 +24,7 @@
             --success-green: #28a745;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -40,187 +36,44 @@
         }
 
         /* --- LAYOUT PRINCIPALE --- */
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        header {
-            background-color: var(--brand-blue);
-            color: var(--white);
-            padding: 25px 30px;
-            text-align: center;
-            border-bottom: 5px solid var(--brand-yellow);
-        }
-
-        header h1 {
-            font-size: 2rem;
-            margin-bottom: 0.25rem;
-            font-weight: 700;
-        }
-
-        header p {
-            font-size: 1.1rem;
-            color: var(--brand-yellow);
-            font-weight: 600;
-        }
-
-        main {
-            padding: 30px 0;
-        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { background-color: var(--brand-blue); color: var(--white); padding: 25px 30px; text-align: center; border-bottom: 5px solid var(--brand-yellow); }
+        header h1 { font-size: 2rem; margin-bottom: 0.25rem; font-weight: 700; }
+        header p { font-size: 1.1rem; color: var(--brand-yellow); font-weight: 600; }
+        main { padding: 30px 0; }
         
         /* --- SEZIONE UPLOAD --- */
-        .upload-section {
-            background-color: var(--white);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            text-align: center;
-        }
-
-        .upload-section h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--brand-blue);
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .upload-button {
-            display: inline-block;
-            background-color: var(--brand-yellow);
-            color: var(--brand-blue);
-            padding: 12px 25px;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.2s ease;
-            border: 2px solid var(--brand-yellow);
-        }
-
-        .upload-button:hover {
-            background-color: #e0d300;
-            transform: translateY(-2px);
-        }
-        
-        .file-info {
-            margin-top: 15px;
-            color: #666;
-            font-style: italic;
-        }
+        .upload-section { background-color: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
+        .upload-section h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--brand-blue); }
+        input[type="file"] { display: none; }
+        .upload-button { display: inline-block; background-color: var(--brand-yellow); color: var(--brand-blue); padding: 12px 25px; border-radius: 5px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; border: 2px solid var(--brand-yellow); }
+        .upload-button:hover { background-color: #e0d300; transform: translateY(-2px); }
+        .file-info { margin-top: 15px; color: #666; font-style: italic; }
 
         /* --- SEZIONE RISULTATI --- */
-        #results-container {
-            margin-top: 30px;
-            display: none;
-        }
+        #results-container { margin-top: 30px; display: none; }
+        .report-title { text-align: center; color: var(--brand-blue); font-size: 1.75rem; font-weight: 700; margin-bottom: 25px; }
+        .result-card { background-color: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--medium-gray); padding-bottom: 15px; margin-bottom: 15px; }
+        .result-card h3 { color: var(--brand-blue); font-size: 1.25rem; border-left: 4px solid var(--brand-yellow); padding-left: 15px; }
+        .copy-button { background-color: transparent; border: 1px solid var(--medium-gray); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .copy-button:hover { background-color: #f0f0f0; border-color: var(--brand-blue); }
+        .copy-button svg { width: 16px; height: 16px; fill: #555; transition: fill 0.2s ease; }
+        .copy-button:hover svg { fill: var(--brand-blue); }
+        .card-content { font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; color: var(--dark-gray); }
+        #total-posts { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
         
-        #report-title {
-            text-align: center;
-            color: var(--brand-blue);
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
+        #breakdown-title { margin-top: 40px; }
 
-        .result-card {
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
-        
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--medium-gray);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .result-card h3 {
-            color: var(--brand-blue);
-            font-size: 1.25rem;
-            border-left: 4px solid var(--brand-yellow);
-            padding-left: 15px;
-        }
-        
-        .copy-button {
-            background-color: transparent;
-            border: 1px solid var(--medium-gray);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .copy-button:hover {
-            background-color: #f0f0f0;
-            border-color: var(--brand-blue);
-        }
-        
-        .copy-button svg {
-            width: 16px;
-            height: 16px;
-            fill: #555;
-            transition: fill 0.2s ease;
-        }
-
-        .copy-button:hover svg {
-            fill: var(--brand-blue);
-        }
-
-        .card-content {
-            font-size: 1rem;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            color: var(--dark-gray);
-        }
-        
-        #total-posts {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--brand-blue);
-        }
-        
         /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            
-            header {
-                padding: 20px;
-            }
-
-            header h1 {
-                font-size: 1.8rem;
-            }
-
-            header p {
-                font-size: 1rem;
-            }
-            
-            #report-title {
-                font-size: 1.5rem;
-            }
-
-            .upload-section, .result-card {
-                padding: 20px;
-            }
-            .result-card h3 {
-                font-size: 1.15rem;
-            }
+            .container { padding: 10px; }
+            header { padding: 20px; }
+            header h1 { font-size: 1.8rem; }
+            header p { font-size: 1rem; }
+            .report-title { font-size: 1.5rem; }
+            .upload-section, .result-card { padding: 20px; }
+            .result-card h3 { font-size: 1.15rem; }
         }
     </style>
 </head>
@@ -241,8 +94,8 @@
             </section>
 
             <section id="results-container">
-                <h2 id="report-title"></h2>
-
+                <h2 id="report-title" class="report-title"></h2>
+                
                 <div class="result-card">
                     <div class="card-header">
                         <h3>Totale Post e Condivisioni</h3>
@@ -272,6 +125,9 @@
                     </div>
                     <pre class="card-content" id="topic-list"></pre>
                 </div>
+                
+                <h2 id="breakdown-title" class="report-title" style="display: none;">Dettaglio per Argomento</h2>
+                <div id="topic-breakdown-container"></div>
             </section>
         </main>
     </div>
@@ -287,38 +143,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalPostsEl = document.getElementById('total-posts');
     const platformCountEl = document.getElementById('platform-count');
     const topicListEl = document.getElementById('topic-list');
+    const breakdownTitle = document.getElementById('breakdown-title');
+    const topicBreakdownContainer = document.getElementById('topic-breakdown-container');
 
     const originalButtonText = uploadButtonLabel.textContent;
 
     fileInput.addEventListener('change', handleFile);
 
-    // --- NUOVA LOGICA PER GESTIRE LE DATE IN MODO ROBUSTO ---
     function parseDate(excelDate) {
-        // Caso 1: È già un oggetto Date valido (la libreria ha funzionato)
-        if (excelDate instanceof Date && !isNaN(excelDate)) {
-            return excelDate;
-        }
-        // Caso 2: È un numero seriale di Excel
+        if (excelDate instanceof Date && !isNaN(excelDate)) return excelDate;
         if (typeof excelDate === 'number') {
             const dateInfo = XLSX.SSF.parse_date_code(excelDate);
-            if (dateInfo) {
-                // I mesi in JS sono 0-indexed (0=Gen, 1=Feb, ...), quindi sottraiamo 1
-                return new Date(dateInfo.y, dateInfo.m - 1, dateInfo.d);
-            }
+            if (dateInfo) return new Date(dateInfo.y, dateInfo.m - 1, dateInfo.d);
         }
-        // Caso 3: È una stringa in formato gg/mm/aaaa
         if (typeof excelDate === 'string') {
             const parts = excelDate.split('/');
             if (parts.length === 3) {
-                // Riassembliamo in formato YYYY-MM-DD per un parsing affidabile
                 const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
                 const date = new Date(isoDate);
-                if (!isNaN(date)) {
-                    return date;
-                }
+                if (!isNaN(date)) return date;
             }
         }
-        // Se nessuno dei casi ha successo, non è una data valida
         return null;
     }
 
@@ -367,98 +212,133 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processData(data) {
-        // --- LOGICA TITOLO E DATE AGGIORNATA ---
-        const dates = data
-            .map(row => parseDate(row['Date'])) // Usa la nuova funzione robusta
-            .filter(d => d !== null); // Filtra solo le date valide
-
+        const dates = data.map(row => parseDate(row['Date'])).filter(d => d !== null);
         let dateString = '';
         if (dates.length > 0) {
             const minDate = new Date(Math.min(...dates));
             const maxDate = new Date(Math.max(...dates));
-            
             const formattedMin = formatDate(minDate);
             const formattedMax = formatDate(maxDate);
-
-            if (formattedMin === formattedMax) {
-                dateString = formattedMin;
-            } else {
-                dateString = `${formattedMin} - ${formattedMax}`;
-            }
+            dateString = (formattedMin === formattedMax) ? formattedMin : `${formattedMin} - ${formattedMax}`;
         }
         reportTitleEl.textContent = `Report social ${dateString}`.trim();
 
-        // 1) Totale post e condivisioni
-        const totalPosts = data.length;
-        totalPostsEl.textContent = totalPosts;
+        totalPostsEl.textContent = data.length;
 
-        // 2) Conteggio per canale social
         const platformCounts = data.reduce((acc, row) => {
-            const platform = row['Platform'];
-            if (platform) {
-                const cleanedPlatform = String(platform).trim();
-                acc[cleanedPlatform] = (acc[cleanedPlatform] || 0) + 1;
-            }
+            if (row['Platform']) acc[String(row['Platform']).trim()] = (acc[String(row['Platform']).trim()] || 0) + 1;
             return acc;
         }, {});
         
-        const platformOutput = Object.entries(platformCounts)
+        platformCountEl.textContent = Object.entries(platformCounts)
             .sort((a, b) => a[0].localeCompare(b[0]))
             .map(([platform, count]) => {
-                let capitalizedPlatform = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
-                if (capitalizedPlatform === 'Twitter') {
-                    capitalizedPlatform = 'X';
-                }
-                return `${capitalizedPlatform} ${count}`;
+                let p = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
+                return `${p === 'Twitter' ? 'X' : p} ${count}`;
             })
             .join(', ');
-        platformCountEl.textContent = platformOutput;
 
-        // 3) Elenco dei temi
         const topics = new Set();
+        const topicPlatformCounts = {};
+
         data.forEach(row => {
+            const platform = String(row['Platform'] || '').trim();
+            if (!platform) return;
+
             const labels = row['Labels'];
             if (labels && typeof labels === 'string') {
-                const labelParts = labels.split(';');
-                labelParts.forEach(part => {
+                labels.split(';').forEach(part => {
                     const cleanedPart = part.trim();
                     if (cleanedPart && !cleanedPart.startsWith('#')) {
                         const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
                         topics.add(formattedTopic);
+                        if (!topicPlatformCounts[formattedTopic]) topicPlatformCounts[formattedTopic] = {};
+                        topicPlatformCounts[formattedTopic][platform] = (topicPlatformCounts[formattedTopic][platform] || 0) + 1;
                     }
                 });
             }
         });
 
-        const topicOutput = [...topics].sort().join('\n');
-        topicListEl.textContent = topicOutput;
+        topicListEl.textContent = [...topics].sort().join('\n');
+        
+        topicBreakdownContainer.innerHTML = '';
+        if (Object.keys(topicPlatformCounts).length > 0) {
+            breakdownTitle.style.display = 'block';
+        } else {
+            breakdownTitle.style.display = 'none';
+        }
+
+        Object.keys(topicPlatformCounts).sort().forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'result-card';
+            const header = document.createElement('div');
+            header.className = 'card-header';
+            const h3 = document.createElement('h3');
+            h3.textContent = topic;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'card-content';
+            const safeId = `content-${topic.replace(/[^a-zA-Z0-9]/g, '-')}`;
+            contentDiv.id = safeId;
+            
+            contentDiv.textContent = Object.entries(topicPlatformCounts[topic])
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .map(([platform, count]) => {
+                    let p = platform.charAt(0).toUpperCase() + platform.slice(1).toLowerCase();
+                    return `${p === 'Twitter' ? 'X' : p} ${count}`;
+                })
+                .join(', ');
+
+            const copyButton = document.createElement('button');
+            copyButton.className = 'copy-button';
+            copyButton.title = `Copia dettaglio ${topic}`;
+            copyButton.dataset.target = `#${safeId}`;
+            copyButton.innerHTML = `<span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>`;
+            
+            header.appendChild(h3);
+            header.appendChild(copyButton);
+            card.appendChild(header);
+            card.appendChild(contentDiv);
+            topicBreakdownContainer.appendChild(card);
+        });
         
         resultsContainer.style.display = 'block';
     }
 
-    // Gestione dei pulsanti "copia"
-    document.querySelectorAll('.copy-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const targetId = button.getAttribute('data-target');
-            const contentElement = document.querySelector(targetId);
-            const textToCopy = contentElement.textContent;
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.copy-button');
+        if (!button) return;
+
+        const targetId = button.dataset.target;
+        const contentElement = document.querySelector(targetId);
+        if (!contentElement) return;
+
+        let textToCopy = contentElement.textContent;
+
+        // --- MODIFICA CHIAVE: Controlla se il pulsante è nella sezione breakdown ---
+        if (button.closest('#topic-breakdown-container')) {
+            const titleElement = button.closest('.card-header').querySelector('h3');
+            if (titleElement) {
+                // Prepara la stringa includendo il titolo
+                textToCopy = `${titleElement.textContent}: ${textToCopy}`;
+            }
+        }
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const icon = button.querySelector('.icon-copy');
+            if (!icon) return;
+            const originalContent = icon.innerHTML;
+            icon.innerHTML = '✓';
+            icon.style.color = 'var(--success-green)';
+            button.style.borderColor = 'var(--success-green)';
             
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const icon = button.querySelector('.icon-copy');
-                const originalContent = icon.innerHTML;
-                icon.innerHTML = '✓';
-                icon.style.color = 'var(--success-green)';
-                button.style.borderColor = 'var(--success-green)';
-                
-                setTimeout(() => {
-                    icon.innerHTML = originalContent;
-                    icon.style.color = ''; 
-                    button.style.borderColor = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Errore durante la copia:', err);
-                alert("Impossibile copiare il testo.");
-            });
+            setTimeout(() => {
+                icon.innerHTML = originalContent;
+                icon.style.color = ''; 
+                button.style.borderColor = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Errore durante la copia:', err);
+            alert("Impossibile copiare il testo.");
         });
     });
 });
