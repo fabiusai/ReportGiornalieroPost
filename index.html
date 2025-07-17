@@ -238,26 +238,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         data.forEach(row => {
             const platform = String(row['Platform'] || '').trim();
+            const author = String(row['Author name'] || '').trim();
             if (!platform || !row['Labels'] || typeof row['Labels'] !== 'string') return;
+            
+            const isAuthorPoste = (author === 'Poste Italiane');
+
             row['Labels'].split(';').forEach(part => {
                 const cleanedPart = part.trim();
                 if (cleanedPart && !cleanedPart.startsWith('#')) {
-                    const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
-                    if (!topicDetails[formattedTopic]) {
-                        topicDetails[formattedTopic] = { counts: {}, link: null };
+                    const baseTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
+                    const finalTopic = isAuthorPoste ? baseTopic : `${author} - ${baseTopic}`;
+                    
+                    if (!topicDetails[finalTopic]) {
+                        topicDetails[finalTopic] = { counts: {}, link: null, isAuthorPoste: isAuthorPoste };
                     }
-                    if (!topicDetails[formattedTopic].link && row['Link']) {
-                        topicDetails[formattedTopic].link = row['Link'];
+                    
+                    // MODIFICA: usa 'View on platform'
+                    if (!topicDetails[finalTopic].link && row['View on platform']) {
+                        topicDetails[finalTopic].link = row['View on platform'];
                     }
-                    topicDetails[formattedTopic].counts[platform] = (topicDetails[formattedTopic].counts[platform] || 0) + 1;
+                    
+                    topicDetails[finalTopic].counts[platform] = (topicDetails[finalTopic].counts[platform] || 0) + 1;
                 }
             });
         });
 
-        topicListEl.textContent = Object.keys(topicDetails).sort().join('\n');
+        // MODIFICA: Logica di ordinamento personalizzata
+        const sortedTopics = Object.keys(topicDetails).sort((a, b) => {
+            const detailA = topicDetails[a];
+            const detailB = topicDetails[b];
+            if (detailA.isAuthorPoste && !detailB.isAuthorPoste) return -1;
+            if (!detailA.isAuthorPoste && detailB.isAuthorPoste) return 1;
+            return a.localeCompare(b);
+        });
+
+        topicListEl.textContent = sortedTopics.join('\n');
         
         topicBreakdownContainer.innerHTML = '';
-        if (Object.keys(topicDetails).length > 0) {
+        if (sortedTopics.length > 0) {
             breakdownTitle.style.display = 'block';
             
             const headerRow = document.createElement('div');
@@ -265,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headerRow.innerHTML = `<div class="topic-cell">Argomento</div><div class="channel-cell">Canali</div><div class="button-cell">Azioni</div>`;
             topicBreakdownContainer.appendChild(headerRow);
 
-            Object.keys(topicDetails).sort().forEach(topic => {
+            sortedTopics.forEach(topic => {
                 const details = topicDetails[topic];
                 const channelString = Object.entries(details.counts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
                 
@@ -302,13 +320,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = event.target.closest('.copy-button');
         if (!button || button.tagName === 'A') return;
 
-        let textToCopy = button.dataset.copyText;
-        if (!textToCopy && button.dataset.target) {
+        let textToCopy;
+        if (button.dataset.copyText) {
+            textToCopy = button.dataset.copyText;
+        } else if (button.dataset.target) {
             const contentElement = document.querySelector(button.dataset.target);
             if(contentElement) textToCopy = contentElement.textContent;
         }
 
-        if (!textToCopy) return;
+        if (typeof textToCopy !== 'string') return;
 
         navigator.clipboard.writeText(textToCopy).then(() => {
             const icon = button.querySelector('.icon-copy');
