@@ -56,7 +56,7 @@
         .result-card { background-color: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--medium-gray); padding-bottom: 15px; margin-bottom: 15px; }
         .result-card h3 { color: var(--brand-blue); font-size: 1.25rem; border-left: 4px solid var(--brand-yellow); padding-left: 15px; }
-        .copy-button { background-color: transparent; border: 1px solid var(--medium-gray); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+        .copy-button { background-color: transparent; border: 1px solid var(--medium-gray); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; text-decoration: none; }
         .copy-button:hover { background-color: #f0f0f0; border-color: var(--brand-blue); }
         .copy-button svg { width: 16px; height: 16px; fill: #555; transition: fill 0.2s ease; }
         .copy-button:hover svg { fill: var(--brand-blue); }
@@ -72,7 +72,7 @@
         .breakdown-row.header { font-weight: 700; color: var(--brand-blue); background-color: #f0f2f5; border-bottom: 2px solid var(--medium-gray); }
         .topic-cell { flex: 2; font-weight: 600; padding-right: 15px; }
         .channel-cell { flex: 3; padding-right: 15px; word-break: break-all; }
-        .button-cell { flex: 1; display: flex; justify-content: flex-end; gap: 8px; }
+        .button-cell { flex: 1.2; display: flex; justify-content: flex-end; gap: 8px; }
 
         /* --- RESPONSIVE DESIGN --- */
         @media (max-width: 768px) {
@@ -234,8 +234,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }, {});
         platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
 
-        const topics = new Set();
-        const topicPlatformCounts = {};
+        const topicDetails = {};
+
         data.forEach(row => {
             const platform = String(row['Platform'] || '').trim();
             if (!platform || !row['Labels'] || typeof row['Labels'] !== 'string') return;
@@ -243,17 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cleanedPart = part.trim();
                 if (cleanedPart && !cleanedPart.startsWith('#')) {
                     const formattedTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
-                    topics.add(formattedTopic);
-                    if (!topicPlatformCounts[formattedTopic]) topicPlatformCounts[formattedTopic] = {};
-                    topicPlatformCounts[formattedTopic][platform] = (topicPlatformCounts[formattedTopic][platform] || 0) + 1;
+                    if (!topicDetails[formattedTopic]) {
+                        topicDetails[formattedTopic] = { counts: {}, link: null };
+                    }
+                    if (!topicDetails[formattedTopic].link && row['Link']) {
+                        topicDetails[formattedTopic].link = row['Link'];
+                    }
+                    topicDetails[formattedTopic].counts[platform] = (topicDetails[formattedTopic].counts[platform] || 0) + 1;
                 }
             });
         });
 
-        topicListEl.textContent = [...topics].sort().join('\n');
+        topicListEl.textContent = Object.keys(topicDetails).sort().join('\n');
         
         topicBreakdownContainer.innerHTML = '';
-        if (Object.keys(topicPlatformCounts).length > 0) {
+        if (Object.keys(topicDetails).length > 0) {
             breakdownTitle.style.display = 'block';
             
             const headerRow = document.createElement('div');
@@ -261,8 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
             headerRow.innerHTML = `<div class="topic-cell">Argomento</div><div class="channel-cell">Canali</div><div class="button-cell">Azioni</div>`;
             topicBreakdownContainer.appendChild(headerRow);
 
-            Object.keys(topicPlatformCounts).sort().forEach(topic => {
-                const channelString = Object.entries(topicPlatformCounts[topic]).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+            Object.keys(topicDetails).sort().forEach(topic => {
+                const details = topicDetails[topic];
+                const channelString = Object.entries(details.counts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+                
+                let linkButtonHTML = '';
+                if (details.link) {
+                    linkButtonHTML = `<a href="${details.link}" target="_blank" rel="noopener noreferrer" class="copy-button" title="Apri post di esempio"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#555555"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8v-2z"/></svg></span></a>`;
+                }
+
                 const row = document.createElement('div');
                 row.className = 'breakdown-row';
                 row.innerHTML = `
@@ -270,11 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="channel-cell">${channelString}</div>
                     <div class="button-cell">
                         <button class="copy-button" title="Copia argomento" data-copy-text="${topic}">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.5 4H10V2H4v14h6v2h8.5c.83 0 1.5-.67 1.5-1.5v-11c0-.83-.67-1.5-1.5-1.5zM18 14h-4v-2h4v2zm0-4h-4V8h4v2zm0-4h-4V4h4v2z"/></svg></span>
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg></span>
                         </button>
                         <button class="copy-button" title="Copia canali" data-copy-text="${channelString}">
                             <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
                         </button>
+                        ${linkButtonHTML}
                     </div>
                 `;
                 topicBreakdownContainer.appendChild(row);
@@ -288,12 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', function(event) {
         const button = event.target.closest('.copy-button');
-        if (!button) return;
+        if (!button || button.tagName === 'A') return;
 
-        let textToCopy;
-        if (button.dataset.copyText) {
-            textToCopy = button.dataset.copyText;
-        } else if (button.dataset.target) {
+        let textToCopy = button.dataset.copyText;
+        if (!textToCopy && button.dataset.target) {
             const contentElement = document.querySelector(button.dataset.target);
             if(contentElement) textToCopy = contentElement.textContent;
         }
