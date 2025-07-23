@@ -3,352 +3,368 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generatore Report Social</title>
+    <title>Report Giornaliero</title>
+    <!-- Inserisci qui la tua favicon.ico nella stessa cartella del file html -->
     <link rel="icon" href="favicon.ico">
     
-    <!-- Libreria per leggere i file Excel (esterna) -->
+    <!-- Libreria per la lettura di file Excel (SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- CSS Integrato (invariato) -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap');
-        :root{--main-blue:#00338D;--main-yellow:#FFCC00;--light-gray:#f4f6f9;--medium-gray:#e9ecef;--dark-gray:#6c757d;--text-color:#212529;--card-shadow:0 4px 12px rgba(0,0,0,0.08);--border-radius:8px}
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Titillium Web',sans-serif;background-color:var(--light-gray);color:var(--text-color);line-height:1.6}
-        .container{max-width:1200px;margin:0 auto;padding:2rem}
-        header{text-align:center;margin-bottom:2.5rem;border-bottom:3px solid var(--main-yellow);padding-bottom:1.5rem;position:relative}
-        header h1{color:var(--main-blue);font-size:2.5rem;margin-bottom:.5rem}
-        header p{color:var(--dark-gray);font-size:1.1rem}
-        main{display:grid;grid-template-columns:1fr 1.2fr;gap:2rem}
-        .card{background-color:#fff;border-radius:var(--border-radius);padding:1.5rem 2rem;box-shadow:var(--card-shadow);border-top:4px solid var(--main-blue)}
-        .card h2{color:var(--main-blue);margin-bottom:1.5rem;font-size:1.4rem;border-bottom:1px solid var(--medium-gray);padding-bottom:.5rem}
-        .form-group{margin-bottom:1.5rem}
-        .form-group label{display:block;font-weight:600;margin-bottom:.5rem;color:#343a40}
-        input[type=text],input[type=email]{width:100%;padding:.75rem;border:1px solid #ced4da;border-radius:4px;font-size:1rem;transition:border-color .2s,box-shadow .2s}
-        input[type=text]:focus,input[type=email]:focus{outline:0;border-color:var(--main-blue);box-shadow:0 0 0 3px rgba(0,51,141,.15)}
-        fieldset{border:none;padding:0}
-        legend{font-weight:600;margin-bottom:.75rem;font-size:1rem;color:#343a40}
-        .radio-group{display:flex;gap:1.5rem}
-        .radio-group label{display:flex;align-items:center;gap:.5rem;font-weight:400;cursor:pointer}
-        .actions-card{border-top-color:var(--main-yellow)}
-        .actions-card h2{color:var(--main-blue)}
-        .btn{display:block;width:100%;padding:.8rem 1rem;font-size:1rem;font-weight:700;text-align:center;border:none;border-radius:4px;cursor:pointer;transition:background-color .2s,transform .1s}
-        .btn:active{transform:translateY(1px)}
-        .btn-upload{background-color:var(--main-blue);color:#fff;margin-bottom:1rem}
-        .btn-upload:hover{background-color:#002266}
-        .actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-        #save-btn{background-color:var(--main-yellow);color:var(--main-blue)}
-        #save-btn:hover{background-color:#e6b800}
-        .btn-secondary{background-color:#6c757d;color:#fff}
-        .btn-secondary:hover{background-color:#5a6268}
-        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-        .output-actions{display:flex;gap:.75rem}
-        .btn-icon{width:36px;height:36px;background-color:transparent;border:1px solid var(--medium-gray);border-radius:50%;cursor:pointer;background-repeat:no-repeat;background-position:center;transition:background-color .2s,border-color .2s,transform .1s}
-        .btn-icon:hover{background-color:var(--light-gray);border-color:var(--dark-gray)}
-        .btn-icon:active{transform:scale(.9)}
-        #copy-btn{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2300338D' class='bi bi-clipboard' viewBox='0 0 16 16'%3E%3Cpath d='M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1-1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z'/%3E%3Cpath d='M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z'/%3E%3C/svg%3E")}
-        #email-btn{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2300338D' class='bi bi-link-45deg' viewBox='0 0 16 16'%3E%3Cpath d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z'/%3E%3Cpath d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z'/%3E%3C/svg%3E")}
-        #output-text{background-color:var(--light-gray);padding:1rem;border-radius:4px;min-height:200px;white-space:pre-wrap;word-wrap:break-word;font-size:.95rem;color:#333;border:1px solid var(--medium-gray)}
-        @media (max-width:992px){main{grid-template-columns:1fr}}
-        @media (max-width:576px){.container{padding:1rem}header h1{font-size:2rem}.card{padding:1.5rem}.actions-grid{grid-template-columns:1fr}}
+        /* --- FONT E STILI GLOBALI --- */
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
+        :root {
+            --brand-blue: #003366;
+            --brand-yellow: #f4e600;
+            --light-gray: #f5f7fa;
+            --medium-gray: #e1e4e8;
+            --dark-gray: #24292e;
+            --white: #ffffff;
+            --success-green: #28a745;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- LAYOUT PRINCIPALE --- */
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { background-color: var(--brand-blue); color: var(--white); padding: 25px 30px; text-align: center; border-bottom: 5px solid var(--brand-yellow); }
+        header h1 { font-size: 2rem; margin-bottom: 0.25rem; font-weight: 700; }
+        header p { font-size: 1.1rem; color: var(--brand-yellow); font-weight: 600; }
+        main { padding: 30px 0; }
+        
+        /* --- SEZIONE UPLOAD --- */
+        .upload-section { background-color: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
+        .upload-section h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--brand-blue); }
+        input[type="file"] { display: none; }
+        .upload-button { display: inline-block; background-color: var(--brand-yellow); color: var(--brand-blue); padding: 12px 25px; border-radius: 5px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; border: 2px solid var(--brand-yellow); }
+        .upload-button:hover { background-color: #e0d300; transform: translateY(-2px); }
+        .file-info { margin-top: 15px; color: #666; font-style: italic; }
+
+        /* --- SEZIONE RISULTATI --- */
+        #results-container { margin-top: 30px; display: none; }
+        .report-title { text-align: center; color: var(--brand-blue); font-size: 1.75rem; font-weight: 700; margin-bottom: 25px; }
+        .result-card { background-color: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--medium-gray); padding-bottom: 15px; margin-bottom: 15px; }
+        .result-card h3 { color: var(--brand-blue); font-size: 1.25rem; border-left: 4px solid var(--brand-yellow); padding-left: 15px; }
+        .copy-button { background-color: transparent; border: 1px solid var(--medium-gray); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; text-decoration: none; }
+        .copy-button:hover { background-color: #f0f0f0; border-color: var(--brand-blue); }
+        .copy-button svg { width: 16px; height: 16px; fill: #555; transition: fill 0.2s ease; }
+        .copy-button:hover svg { fill: var(--brand-blue); }
+        .card-content { font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; color: var(--dark-gray); }
+        #total-posts { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
+        
+        /* --- NUOVI STILI PER LA TABELLA DETTAGLIO --- */
+        #breakdown-title { margin-top: 40px; }
+        .breakdown-table { background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+        .breakdown-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--medium-gray); }
+        .breakdown-row:last-child { border-bottom: none; }
+        .breakdown-row:nth-child(even) { background-color: #fcfcfc; }
+        .breakdown-row.header { font-weight: 700; color: var(--brand-blue); background-color: #f0f2f5; border-bottom: 2px solid var(--medium-gray); }
+        .topic-cell { flex: 2; font-weight: 600; padding-right: 15px; }
+        .channel-cell { flex: 3; padding-right: 15px; word-break: break-all; }
+        .button-cell { flex: 1.2; display: flex; justify-content: flex-end; gap: 8px; }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            header { padding: 20px; }
+            header h1 { font-size: 1.8rem; }
+            header p { font-size: 1rem; }
+            .report-title { font-size: 1.5rem; }
+            .upload-section, .result-card { padding: 20px; }
+            .result-card h3 { font-size: 1.15rem; }
+            .breakdown-row { flex-wrap: wrap; padding: 10px; }
+            .topic-cell, .channel-cell { flex: 1 1 100%; padding-right: 0; }
+            .channel-cell { margin-top: 5px; }
+            .button-cell { flex: 1 1 100%; justify-content: flex-start; margin-top: 10px; }
+        }
     </style>
 </head>
 <body>
 
+    <header>
+        <h1>Report Giornaliero</h1>
+        <p>Argomenti trattati e numero post</p>
+    </header>
+
     <div class="container">
-        <header><h1>Generatore di Report Social</h1><p>Carica un file Excel e compila i campi per generare il testo della comunicazione.</p></header>
         <main>
-            <section class="form-section">
-                <form id="report-form"><div class="card"><h2>1. Dati del Destinatario</h2><div class="form-group"><label for="recipient-name">Nome destinatario email</label><input type="text" id="recipient-name" name="recipient-name" placeholder="Es. Mario Rossi" required></div><div class="form-group"><label for="recipient-email">Indirizzo email (opzionale)</label><input type="email" id="recipient-email" name="recipient-email" placeholder="Es. mario.rossi@email.com"></div></div><div class="card"><h2>2. Opzioni di Formattazione</h2><div class="form-group"><fieldset><legend>Saluto</legend><div class="radio-group"><label><input type="radio" name="saluto" value="Ciao" checked> Ciao</label><label><input type="radio" name="saluto" value="Buongiorno"> Buongiorno</label><label><input type="radio" name="saluto" value="Buonasera"> Buonasera</label></div></fieldset></div><div class="form-group"><fieldset><legend>Mostra canali social</legend><div class="radio-group"><label><input type="radio" name="show-channels" value="si"> Sì</label><label><input type="radio" name="show-channels" value="no" checked> No</label></div></fieldset></div></div><div class="card actions-card"><h2>3. Azioni</h2><label for="excel-file-input" class="btn btn-upload" id="upload-label">Carica File Excel</label><input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="display:none"><div class="actions-grid"><button type="button" id="save-btn" class="btn">Salva Dati</button><button type="button" id="reset-btn" class="btn btn-secondary">Resetta Form</button></div></div></form>
+            <section class="upload-section">
+                <h2>Carica il tuo file</h2>
+                <label for="file-input" class="upload-button" id="upload-button-label">Seleziona file Excel</label>
+                <input type="file" id="file-input" accept=".xlsx, .xls">
+                <p class="file-info" id="file-info-text">Nessun file selezionato.</p>
             </section>
-            <section class="output-section">
-                <div class="card"><div class="output-header"><h2>Anteprima Report Generato</h2><div class="output-actions"><button id="copy-btn" class="btn-icon" title="Copia testo del report"></button><button id="email-btn" class="btn-icon" title="Copia link 'mailto' completo"></button></div></div><pre id="output-text">Il report generato apparirà qui...</pre></div>
+
+            <section id="results-container">
+                <h2 id="report-title" class="report-title"></h2>
+                
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>Totale Post e Condivisioni</h3>
+                        <button class="copy-button" data-target="#total-posts" title="Copia totale post"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
+                    </div>
+                    <div class="card-content" id="total-posts"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>Post per Canale Social</h3>
+                        <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
+                    </div>
+                    <div class="card-content" id="platform-count"></div>
+                </div>
+
+                <div class="result-card">
+                    <div class="card-header">
+                        <h3>Temi Trattati</h3>
+                         <button class="copy-button" data-target="#topic-list" title="Copia elenco temi"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
+                    </div>
+                    <pre class="card-content" id="topic-list"></pre>
+                </div>
+                
+                <h2 id="breakdown-title" class="report-title" style="display: none;">Dettaglio per Argomento</h2>
+                <div id="topic-breakdown-container" class="breakdown-table"></div>
             </section>
         </main>
     </div>
 
-    <!-- JavaScript con logica aggiornata e completa -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Riferimenti agli elementi del DOM
-            const form = document.getElementById('report-form');
-            const recipientNameInput = document.getElementById('recipient-name');
-            const recipientEmailInput = document.getElementById('recipient-email');
-            const fileInput = document.getElementById('excel-file-input');
-            const uploadLabel = document.getElementById('upload-label');
-            const saveBtn = document.getElementById('save-btn');
-            const resetBtn = document.getElementById('reset-btn');
-            const copyBtn = document.getElementById('copy-btn');
-            const emailBtn = document.getElementById('email-btn');
-            const outputText = document.getElementById('output-text');
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('file-input');
+    const uploadButtonLabel = document.getElementById('upload-button-label');
+    const fileInfoText = document.getElementById('file-info-text');
+    const resultsContainer = document.getElementById('results-container');
+    
+    const reportTitleEl = document.getElementById('report-title');
+    const totalPostsEl = document.getElementById('total-posts');
+    const platformCountEl = document.getElementById('platform-count');
+    const topicListEl = document.getElementById('topic-list');
+    const breakdownTitle = document.getElementById('breakdown-title');
+    const topicBreakdownContainer = document.getElementById('topic-breakdown-container');
+
+    const originalButtonText = uploadButtonLabel.textContent;
+
+    fileInput.addEventListener('change', handleFile);
+
+    function parseDate(excelDate) {
+        if (excelDate instanceof Date && !isNaN(excelDate)) return excelDate;
+        if (typeof excelDate === 'number') {
+            const dateInfo = XLSX.SSF.parse_date_code(excelDate);
+            if (dateInfo) return new Date(dateInfo.y, dateInfo.m - 1, dateInfo.d);
+        }
+        if (typeof excelDate === 'string') {
+            const parts = excelDate.split('/');
+            if (parts.length === 3) {
+                const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                const date = new Date(isoDate);
+                if (!isNaN(date)) return date;
+            }
+        }
+        return null;
+    }
+
+    function formatDate(date) {
+        if (!date) return '';
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    function handleFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        fileInfoText.textContent = `File selezionato: ${file.name}`;
+        uploadButtonLabel.textContent = 'Elaborazione...';
+        uploadButtonLabel.style.cursor = 'not-allowed';
+        resultsContainer.style.display = 'none';
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+                processData(jsonData);
+                uploadButtonLabel.textContent = 'File Elaborato!';
+                setTimeout(() => {
+                    uploadButtonLabel.textContent = originalButtonText;
+                    uploadButtonLabel.style.cursor = 'pointer';
+                }, 3000);
+            } catch (error) {
+                console.error("Errore durante l'elaborazione del file:", error);
+                fileInfoText.textContent = 'Errore: il file non è valido o è corrotto.';
+                uploadButtonLabel.textContent = 'Riprova';
+                uploadButtonLabel.style.cursor = 'pointer';
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function processData(data) {
+        const dates = data.map(row => parseDate(row['Date'])).filter(d => d !== null);
+        let dateString = '';
+        if (dates.length > 0) {
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            const formattedMin = formatDate(minDate);
+            const formattedMax = formatDate(maxDate);
+            dateString = (formattedMin === formattedMax) ? formattedMin : `${formattedMin} - ${formattedMax}`;
+        }
+        reportTitleEl.textContent = `Report social ${dateString}`.trim();
+        totalPostsEl.textContent = data.length;
+
+        const platformCounts = data.reduce((acc, row) => {
+            if (row['Platform']) acc[String(row['Platform']).trim()] = (acc[String(row['Platform']).trim()] || 0) + 1;
+            return acc;
+        }, {});
+        platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+
+        const topicDetails = {};
+
+        data.forEach(row => {
+            const platform = String(row['Platform'] || '').trim();
+            const author = String(row['Author name'] || '').trim();
+            if (!platform || !row['Labels'] || typeof row['Labels'] !== 'string') return;
             
-            let excelData = null;
+            const isAuthorPoste = (author === 'Poste Italiane');
 
-            // --- FUNZIONI DI LOGICA ---
-
-            /**
-             * Trova il nome di una colonna in modo case-insensitive e ignorando spazi.
-             */
-            const findColumnName = (keys, nameToFind) => {
-                return keys.find(key => key.toLowerCase().trim() === nameToFind);
-            };
-
-            /**
-             * Estrae l'argomento principale dalla colonna 'Labels'.
-             * L'argomento è la prima parte del testo (separato da ';') che NON è scritta interamente in maiuscolo.
-             * Esempio: da "#ISR;Argomento a piacere;#IST" estrae "Argomento a piacere".
-             */
-            const getArgumentFromExcel = (data) => {
-                if (!data || data.length === 0) return null;
-                const labelsColumn = findColumnName(Object.keys(data[0]), 'labels');
-                if (!labelsColumn) return null;
-
-                for (const row of data) {
-                    const labelsValue = row[labelsColumn];
-                    if (labelsValue) {
-                        const parts = String(labelsValue).split(';');
-                        for (const part of parts) {
-                            const trimmedPart = part.trim();
-                            // La condizione chiave: l'argomento è la parte che non è vuota e non è uguale alla sua versione in maiuscolo.
-                            // Questo esclude tag come "ISR" o "#IST" ma include "Argomento a piacere".
-                            if (trimmedPart && trimmedPart !== trimmedPart.toUpperCase()) {
-                                // Rimuove un eventuale '#' all'inizio e restituisce l'argomento pulito.
-                                return trimmedPart.replace(/^#/, '').trim();
-                            }
-                        }
+            row['Labels'].split(';').forEach(part => {
+                const cleanedPart = part.trim();
+                if (cleanedPart && !cleanedPart.startsWith('#')) {
+                    const baseTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
+                    const finalTopic = isAuthorPoste ? baseTopic : `${author} - ${baseTopic}`;
+                    
+                    if (!topicDetails[finalTopic]) {
+                        topicDetails[finalTopic] = { counts: {}, link: null, isAuthorPoste: isAuthorPoste };
                     }
-                }
-                // Se nessun argomento è stato trovato in nessuna riga
-                return null;
-            };
-
-            /**
-             * Estrae e formatta i link dall'Excel.
-             * Priorità 1: Colonna 'Platform'.
-             * Priorità 2: Inferisce dall'URL.
-             * Aggiunto supporto per LinkedIn.
-             */
-            const getLinksFromExcel = (data, showChannels) => {
-                if (!data || data.length === 0) return null;
-
-                const linkColumn = findColumnName(Object.keys(data[0]), 'view on platform');
-                const platformColumn = findColumnName(Object.keys(data[0]), 'platform');
-
-                if (!linkColumn) return null;
-
-                const validRows = data.filter(row => row[linkColumn] && String(row[linkColumn]).startsWith('http'));
-                if (validRows.length === 0) return null;
-
-                if (!showChannels) {
-                    return validRows.map(row => row[linkColumn]).join('\n');
-                }
-
-                const platformDisplayNameMap = {
-                    'facebook': 'Facebook',
-                    'twitter': 'X (Twitter)',
-                    'x': 'X (Twitter)',
-                    'instagram': 'Instagram',
-                    'linkedin': 'LinkedIn',
-                    'youtube': 'Youtube',
-                };
-
-                const groupedLinks = {};
-
-                validRows.forEach(row => {
-                    const link = row[linkColumn];
-                    let platformKey = 'Altro';
-
-                    if (platformColumn && row[platformColumn]) {
-                        const platformFromCell = String(row[platformColumn]).toLowerCase().trim();
-                        platformKey = platformDisplayNameMap[platformFromCell] || (platformFromCell.charAt(0).toUpperCase() + platformFromCell.slice(1));
-                    } else {
-                        const url = String(link).toLowerCase();
-                        if (url.includes('facebook.com')) platformKey = 'Facebook';
-                        else if (url.includes('twitter.com') || url.includes('x.com')) platformKey = 'X (Twitter)';
-                        else if (url.includes('instagram.com')) platformKey = 'Instagram';
-                        else if (url.includes('linkedin.com')) platformKey = 'LinkedIn';
-                        else if (url.includes('youtube.com') || url.includes('youtu.be')) platformKey = 'Youtube';
+                    
+                    if (!topicDetails[finalTopic].link && row['View on platform']) {
+                        topicDetails[finalTopic].link = row['View on platform'];
                     }
-
-                    if (!groupedLinks[platformKey]) groupedLinks[platformKey] = [];
-                    groupedLinks[platformKey].push(link);
-                });
-
-                let outputString = '';
-                const platformOrder = ['Facebook', 'X (Twitter)', 'Instagram', 'LinkedIn', 'Youtube', 'Altro'];
-                
-                platformOrder.forEach(platformName => {
-                    if (groupedLinks[platformName] && groupedLinks[platformName].length > 0) {
-                        outputString += `\n${platformName}:\n${groupedLinks[platformName].join('\n')}\n`;
-                    }
-                });
-                
-                return outputString.trim();
-            };
-
-            /**
-             * Genera il testo del report finale e lo mostra nell'area di output.
-             */
-            const generateReport = () => {
-                if (!recipientNameInput.value) {
-                    outputText.textContent = "Per favore, compila il campo 'Nome destinatario'.";
-                    return;
-                }
-                if (!excelData) {
-                    outputText.textContent = "Per favore, carica un file Excel per continuare.";
-                    return;
-                }
-
-                const formData = new FormData(form);
-                const saluto = formData.get('saluto');
-                const recipientName = recipientNameInput.value.trim();
-                const showChannels = formData.get('show-channels') === 'si';
-
-                const argument = getArgumentFromExcel(excelData);
-                if (!argument) {
-                    outputText.textContent = "Errore: Impossibile trovare un argomento valido (testo non maiuscolo) nella colonna 'Labels' del file Excel.";
-                    return;
-                }
-
-                const links = getLinksFromExcel(excelData, showChannels);
-                if (!links) {
-                    outputText.textContent = "Errore: Impossibile trovare la colonna 'View on platform' o dei link validi nel file Excel.";
-                    return;
-                }
-
-                const report = `${saluto} ${recipientName},
-ti confermo che siamo online sui nostri canali social con i post dedicati all'argomento «${argument}».
-
-I link dei post sono i seguenti:
-${links}
-
-Un saluto,
-Fabio.`;
-                outputText.textContent = report;
-            };
-
-            /**
-             * Fornisce un feedback visivo temporaneo su un pulsante o etichetta.
-             */
-            const setButtonFeedback = (element, message, isTemporary = false, duration = 2000, originalText = "") => {
-                const original = originalText || element.textContent;
-                element.textContent = message;
-                if (isTemporary) {
-                    setTimeout(() => {
-                        element.textContent = original;
-                    }, duration);
-                }
-            };
-            
-            // --- EVENT LISTENERS ---
-
-            form.addEventListener('input', generateReport);
-
-            fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                setButtonFeedback(uploadLabel, 'Caricamento...');
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = new Uint8Array(e.target.result);
-                        const workbook = XLSX.read(data, { type: 'array' });
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        excelData = XLSX.utils.sheet_to_json(worksheet);
-                        setButtonFeedback(uploadLabel, '✓ Fatto! File Caricato', true, 3000, 'Carica File Excel');
-                        generateReport();
-                    } catch (error) {
-                        console.error('Errore nel parsing del file Excel:', error);
-                        excelData = null;
-                        outputText.textContent = 'Errore: il file selezionato non è un formato Excel valido o è corrotto.';
-                        setButtonFeedback(uploadLabel, 'Errore nel caricamento', true, 3000, 'Carica File Excel');
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            });
-
-            saveBtn.addEventListener('click', () => {
-                const dataToSave = {
-                    name: recipientNameInput.value,
-                    email: recipientEmailInput.value,
-                    saluto: form.saluto.value,
-                    showChannels: form['show-channels'].value
-                };
-                localStorage.setItem('reportFormData', JSON.stringify(dataToSave));
-                setButtonFeedback(saveBtn, '✓ Dati Salvati!', true, 2000, 'Salva Dati');
-            });
-
-            resetBtn.addEventListener('click', () => {
-                form.reset();
-                recipientNameInput.value = '';
-                recipientEmailInput.value = '';
-                excelData = null;
-                outputText.textContent = 'Il report generato apparirà qui...';
-                localStorage.removeItem('reportFormData');
-                fileInput.value = ''; // Resetta anche l'input del file
-                setButtonFeedback(resetBtn, '✓ Form resettato', true, 2000, 'Resetta Form');
-                setButtonFeedback(uploadLabel, 'Carica File Excel');
-            });
-
-            copyBtn.addEventListener('click', () => {
-                const content = outputText.textContent;
-                if (content && !content.startsWith('Il report generato') && !content.startsWith('Errore') && !content.startsWith('Per favore')) {
-                    navigator.clipboard.writeText(content).then(() => {
-                        copyBtn.style.backgroundColor = 'var(--main-yellow)';
-                        setTimeout(() => {
-                            copyBtn.style.backgroundColor = 'transparent';
-                        }, 1500);
-                    }).catch(err => {
-                        console.error('Errore durante la copia:', err);
-                        alert('Impossibile copiare il testo.');
-                    });
+                    
+                    topicDetails[finalTopic].counts[platform] = (topicDetails[finalTopic].counts[platform] || 0) + 1;
                 }
             });
-
-            emailBtn.addEventListener('click', () => {
-                const email = recipientEmailInput.value;
-                const reportContent = outputText.textContent;
-
-                if (!email) {
-                    alert("Per favore, inserisci un indirizzo email nel campo apposito.");
-                    return;
-                }
-                
-                if (!reportContent || reportContent.startsWith("Il report") || reportContent.startsWith("Errore") || reportContent.startsWith("Per favore")) {
-                    alert("Per favore, genera prima un report valido per creare il link email.");
-                    return;
-                }
-
-                const subject = "Report Social";
-                const body = encodeURIComponent(reportContent);
-                const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
-
-                navigator.clipboard.writeText(mailtoLink).then(() => {
-                    alert("Link 'mailto' completo copiato negli appunti.\n\nOra incollalo nella barra degli indirizzi di una nuova scheda del browser.");
-                    emailBtn.style.backgroundColor = 'var(--main-yellow)';
-                    setTimeout(() => { emailBtn.style.backgroundColor = 'transparent'; }, 2000);
-                }).catch(err => {
-                    console.error("Errore durante la copia del link mailto:", err);
-                    alert("Impossibile copiare il link mailto.");
-                });
-            });
-
-            // Carica i dati salvati all'avvio
-            const loadData = () => {
-                const savedData = localStorage.getItem('reportFormData');
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    recipientNameInput.value = data.name || '';
-                    recipientEmailInput.value = data.email || '';
-                    form.saluto.value = data.saluto || 'Ciao';
-                    form['show-channels'].value = data.showChannels || 'no';
-                }
-            };
-            
-            loadData();
         });
-    </script>
+
+        // NUOVA LOGICA DI ORDINAMENTO: Per autore, poi per numerosità (decrescente), poi alfabetico
+        const sortedTopics = Object.keys(topicDetails).sort((a, b) => {
+            const detailA = topicDetails[a];
+            const detailB = topicDetails[b];
+
+            // 1. Criterio primario: i post di Poste Italiane vengono prima
+            if (detailA.isAuthorPoste && !detailB.isAuthorPoste) return -1;
+            if (!detailA.isAuthorPoste && detailB.isAuthorPoste) return 1;
+
+            // A questo punto, entrambi gli argomenti sono dello stesso "gruppo" (entrambi Poste o entrambi non-Poste).
+
+            // 2. Criterio secondario: ordina per numero totale di occorrenze (decrescente)
+            // Calcoliamo il totale dei post per l'argomento A
+            const countA = Object.values(detailA.counts).reduce((sum, current) => sum + current, 0);
+            // Calcoliamo il totale dei post per l'argomento B
+            const countB = Object.values(detailB.counts).reduce((sum, current) => sum + current, 0);
+            
+            if (countA !== countB) {
+                return countB - countA; // L'argomento con più post viene prima
+            }
+
+            // 3. Criterio di spareggio: ordine alfabetico
+            return a.localeCompare(b);
+        });
+
+        topicListEl.textContent = sortedTopics.join('\n');
+        
+        topicBreakdownContainer.innerHTML = '';
+        if (sortedTopics.length > 0) {
+            breakdownTitle.style.display = 'block';
+            
+            const headerRow = document.createElement('div');
+            headerRow.className = 'breakdown-row header';
+            headerRow.innerHTML = `<div class="topic-cell">Argomento</div><div class="channel-cell">Canali</div><div class="button-cell">Azioni</div>`;
+            topicBreakdownContainer.appendChild(headerRow);
+
+            sortedTopics.forEach(topic => {
+                const details = topicDetails[topic];
+                const channelString = Object.entries(details.counts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+                
+                let linkButtonHTML = '';
+                if (details.link) {
+                    linkButtonHTML = `<a href="${details.link}" target="_blank" rel="noopener noreferrer" class="copy-button" title="Apri post di esempio"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#555555"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8v-2z"/></svg></span></a>`;
+                }
+
+                const row = document.createElement('div');
+                row.className = 'breakdown-row';
+                row.innerHTML = `
+                    <div class="topic-cell">${topic}</div>
+                    <div class="channel-cell">${channelString}</div>
+                    <div class="button-cell">
+                        <button class="copy-button" title="Copia argomento" data-copy-text="${topic}">
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg></span>
+                        </button>
+                        <button class="copy-button" title="Copia canali" data-copy-text="${channelString}">
+                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
+                        </button>
+                        ${linkButtonHTML}
+                    </div>
+                `;
+                topicBreakdownContainer.appendChild(row);
+            });
+        } else {
+            breakdownTitle.style.display = 'none';
+        }
+        
+        resultsContainer.style.display = 'block';
+    }
+
+    document.addEventListener('click', function(event) {
+        const button = event.target.closest('.copy-button');
+        if (!button || button.tagName === 'A') return;
+
+        let textToCopy;
+        if (button.dataset.copyText) {
+            textToCopy = button.dataset.copyText;
+        } else if (button.dataset.target) {
+            const contentElement = document.querySelector(button.dataset.target);
+            if(contentElement) textToCopy = contentElement.textContent;
+        }
+
+        if (typeof textToCopy !== 'string') return;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const icon = button.querySelector('.icon-copy');
+            if (!icon) return;
+            const originalContent = icon.innerHTML;
+            icon.innerHTML = '✓';
+            icon.style.color = 'var(--success-green)';
+            button.style.borderColor = 'var(--success-green)';
+            
+            setTimeout(() => {
+                icon.innerHTML = originalContent;
+                icon.style.color = ''; 
+                button.style.borderColor = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Errore durante la copia:', err);
+            alert("Impossibile copiare il testo.");
+        });
+    });
+});
+</script>
+
 </body>
 </html>
