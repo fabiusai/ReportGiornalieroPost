@@ -242,15 +242,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!platform || !row['Labels'] || typeof row['Labels'] !== 'string') return;
             
             const isAuthorPoste = (author === 'Poste Italiane');
-
-            row['Labels'].split(';').forEach(part => {
+            const labelsText = row['Labels'];
+            const hasIST = labelsText.includes('#IST');
+            // **IMPORTANTE**: Se la colonna delle visualizzazioni ha un nome diverso da 'Views', modificalo qui sotto.
+            const views = parseInt(row['Views'] || 0, 10); 
+            
+            labelsText.split(';').forEach(part => {
                 const cleanedPart = part.trim();
                 if (cleanedPart && !cleanedPart.startsWith('#')) {
                     const baseTopic = cleanedPart.charAt(0).toUpperCase() + cleanedPart.slice(1);
                     const finalTopic = isAuthorPoste ? baseTopic : `${author} - ${baseTopic}`;
                     
                     if (!topicDetails[finalTopic]) {
-                        topicDetails[finalTopic] = { counts: {}, link: null, isAuthorPoste: isAuthorPoste };
+                        topicDetails[finalTopic] = { 
+                            counts: {}, 
+                            link: null, 
+                            isAuthorPoste: isAuthorPoste,
+                            author: author,
+                            hasIST: false,
+                            totalCount: 0,
+                            totalViews: 0
+                        };
                     }
                     
                     if (!topicDetails[finalTopic].link && row['View on platform']) {
@@ -258,34 +270,84 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     
                     topicDetails[finalTopic].counts[platform] = (topicDetails[finalTopic].counts[platform] || 0) + 1;
+                    topicDetails[finalTopic].totalCount += 1;
+                    topicDetails[finalTopic].totalViews += isNaN(views) ? 0 : views;
+                    if (hasIST) {
+                        topicDetails[finalTopic].hasIST = true;
+                    }
                 }
             });
         });
 
-        // NUOVA LOGICA DI ORDINAMENTO: Per autore, poi per numerosità (decrescente), poi alfabetico
-        const sortedTopics = Object.keys(topicDetails).sort((a, b) => {
+        // --- NUOVA LOGICA DI ORDINAMENTO A GRUPPI ---
+
+        // 1. Definiamo la funzione di confronto per visualizzazioni, ricorrenza e ordine alfabetico
+        const sortCriteria = (a, b) => {
             const detailA = topicDetails[a];
             const detailB = topicDetails[b];
-
-            // 1. Criterio primario: i post di Poste Italiane vengono prima
-            if (detailA.isAuthorPoste && !detailB.isAuthorPoste) return -1;
-            if (!detailA.isAuthorPoste && detailB.isAuthorPoste) return 1;
-
-            // A questo punto, entrambi gli argomenti sono dello stesso "gruppo" (entrambi Poste o entrambi non-Poste).
-
-            // 2. Criterio secondario: ordina per numero totale di occorrenze (decrescente)
-            // Calcoliamo il totale dei post per l'argomento A
-            const countA = Object.values(detailA.counts).reduce((sum, current) => sum + current, 0);
-            // Calcoliamo il totale dei post per l'argomento B
-            const countB = Object.values(detailB.counts).reduce((sum, current) => sum + current, 0);
             
-            if (countA !== countB) {
-                return countB - countA; // L'argomento con più post viene prima
+            // --- MODIFICA ---
+            // Criterio 1: Visualizzazioni (decrescente)
+            if (detailA.totalViews !== detailB.totalViews) {
+                return detailB.totalViews - detailA.totalViews;
             }
-
-            // 3. Criterio di spareggio: ordine alfabetico
+            // Criterio 2: Ricorrenza (decrescente)
+            if (detailA.totalCount !== detailB.totalCount) {
+                return detailB.totalCount - detailA.totalCount;
+            }
+            // Criterio 3: Alfabetico (crescente)
             return a.localeCompare(b);
-        });
+        };
+        
+        // 2. Separiamo gli argomenti in 3 gruppi principali
+        const istTopics = [];
+        const posteTopics = [];
+        const otherAuthorTopics = [];
+
+        for (const topic in topicDetails) {
+            const details = topicDetails[topic];
+            if (details.hasIST) {
+                istTopics.push(topic);
+            } else if (details.isAuthorPoste) {
+                posteTopics.push(topic);
+            } else {
+                otherAuthorTopics.push(topic);
+            }
+        }
+        
+        // 3. Ordiniamo i primi due gruppi
+        istTopics.sort(sortCriteria);
+        posteTopics.sort(sortCriteria);
+        
+        // 4. Gestiamo il gruppo "Altri Autori" con la logica di raggruppamento
+        let sortedOtherAuthorTopics = [];
+        if (otherAuthorTopics.length > 0) {
+            // Raggruppiamo gli argomenti per autore
+            const authorGroups = otherAuthorTopics.reduce((acc, topic) => {
+                const author = topicDetails[topic].author;
+                if (!acc[author]) {
+                    acc[author] = [];
+                }
+                acc[author].push(topic);
+                return acc;
+            }, {});
+
+            // Ordiniamo ogni lista di argomenti all'interno di un autore
+            for (const author in authorGroups) {
+                authorGroups[author].sort(sortCriteria);
+            }
+            
+            // Ordiniamo gli autori in base al numero di argomenti che hanno (decrescente)
+            const sortedAuthors = Object.keys(authorGroups).sort((a, b) => {
+                return authorGroups[b].length - authorGroups[a].length;
+            });
+            
+            // Appiattiamo la lista ordinata
+            sortedOtherAuthorTopics = sortedAuthors.flatMap(author => authorGroups[author]);
+        }
+
+        // 5. Uniamo i gruppi ordinati per ottenere la lista finale
+        const sortedTopics = [...istTopics, ...posteTopics, ...sortedOtherAuthorTopics];
 
         topicListEl.textContent = sortedTopics.join('\n');
         
