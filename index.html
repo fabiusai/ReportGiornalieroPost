@@ -1,3 +1,4 @@
+    
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -244,8 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAuthorPoste = (author === 'Poste Italiane');
             const labelsText = row['Labels'];
             const hasIST = labelsText.includes('#IST');
-            // **IMPORTANTE**: Se la colonna delle visualizzazioni ha un nome diverso da 'Views', modificalo qui sotto.
-            const views = parseInt(row['Views'] || 0, 10); 
+            
+            // --- MODIFICA ---
+            // Legge i dati dalla colonna "Total impressions". Se il nome è diverso, modificalo qui.
+            const views = parseInt(row['Total impressions'] || 0, 10); 
             
             labelsText.split(';').forEach(part => {
                 const cleanedPart = part.trim();
@@ -286,7 +289,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const detailA = topicDetails[a];
             const detailB = topicDetails[b];
             
-            // --- MODIFICA ---
             // Criterio 1: Visualizzazioni (decrescente)
             if (detailA.totalViews !== detailB.totalViews) {
                 return detailB.totalViews - detailA.totalViews;
@@ -430,3 +432,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
+  
