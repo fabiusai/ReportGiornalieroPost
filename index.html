@@ -1,4 +1,3 @@
-    
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -227,14 +226,32 @@ document.addEventListener('DOMContentLoaded', () => {
             dateString = (formattedMin === formattedMax) ? formattedMin : `${formattedMin} - ${formattedMax}`;
         }
         reportTitleEl.textContent = `Report social ${dateString}`.trim();
-        totalPostsEl.textContent = data.length;
 
-        const platformCounts = data.reduce((acc, row) => {
-            if (row['Platform']) acc[String(row['Platform']).trim()] = (acc[String(row['Platform']).trim()] || 0) + 1;
-            return acc;
-        }, {});
+        // Calcolo personalizzato dei post totali e per piattaforma per gestire la regola #WHA
+        let totalPostsForCount = 0;
+        const platformCounts = {};
+
+        data.forEach(row => {
+            const platform = String(row['Platform'] || '').trim();
+            const labels = String(row['Labels'] || '');
+
+            if (platform) {
+                // 1. Conteggia sempre il post originale dalla riga del file Excel
+                platformCounts[platform] = (platformCounts[platform] || 0) + 1;
+                totalPostsForCount++;
+
+                // 2. Se è un post Youtube con etichetta #WHA, aggiungi un post Whatsapp in più
+                if (platform.toLowerCase() === 'youtube' && labels.includes('#WHA')) {
+                    const whatsappPlatform = 'Whatsapp';
+                    platformCounts[whatsappPlatform] = (platformCounts[whatsappPlatform] || 0) + 1;
+                    totalPostsForCount++; // Incrementa anche il conteggio totale
+                }
+            }
+        });
+
+        totalPostsEl.textContent = totalPostsForCount;
         platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
-
+        
         const topicDetails = {};
 
         data.forEach(row => {
@@ -245,10 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAuthorPoste = (author === 'Poste Italiane');
             const labelsText = row['Labels'];
             const hasIST = labelsText.includes('#IST');
-            
-            // --- MODIFICA ---
-            // Legge i dati dalla colonna "Total impressions". Se il nome è diverso, modificalo qui.
             const views = parseInt(row['Total impressions'] || 0, 10); 
+            
+            // Variabile per identificare la condizione speciale per Whatsapp
+            const isYoutubeWithWHA = platform.toLowerCase() === 'youtube' && labelsText.includes('#WHA');
             
             labelsText.split(';').forEach(part => {
                 const cleanedPart = part.trim();
@@ -272,12 +289,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         topicDetails[finalTopic].link = row['View on platform'];
                     }
                     
+                    // Incrementa sempre il conteggio per la piattaforma originale
                     topicDetails[finalTopic].counts[platform] = (topicDetails[finalTopic].counts[platform] || 0) + 1;
                     topicDetails[finalTopic].totalCount += 1;
                     topicDetails[finalTopic].totalViews += isNaN(views) ? 0 : views;
                     if (hasIST) {
                         topicDetails[finalTopic].hasIST = true;
                     }
+
+                    // --- INIZIO MODIFICA DETTAGLIO ARGOMENTO ---
+                    // Se la condizione è verificata, aggiungi anche il conteggio per Whatsapp
+                    if (isYoutubeWithWHA) {
+                        const whatsappPlatform = 'Whatsapp';
+                        topicDetails[finalTopic].counts[whatsappPlatform] = (topicDetails[finalTopic].counts[whatsappPlatform] || 0) + 1;
+                        topicDetails[finalTopic].totalCount += 1; // Incrementa anche il conteggio ricorrenza del tema
+                    }
+                    // --- FINE MODIFICA DETTAGLIO ARGOMENTO ---
                 }
             });
         });
@@ -424,7 +451,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
         }).catch(err => {
             console.error('Errore durante la copia:', err);
-            alert("Impossibile copiare il testo.");
+            // Sostituisco alert() con un feedback meno invasivo, ma lo lascio commentato
+            // in caso sia preferibile un avviso esplicito
+            // console.error("Impossibile copiare il testo."); 
         });
     });
 });
@@ -433,4 +462,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 </html>
 
-  
