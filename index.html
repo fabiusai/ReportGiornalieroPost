@@ -4,89 +4,172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Giornaliero</title>
-    <!-- Inserisci qui la tua favicon.ico nella stessa cartella del file html -->
     <link rel="icon" href="favicon.ico">
-    
-    <!-- Libreria per la lettura di file Excel (SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
-        /* --- FONT E STILI GLOBALI --- */
-        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
         :root {
             --brand-blue: #003366;
             --brand-yellow: #f4e600;
-            --light-gray: #f5f7fa;
-            --medium-gray: #e1e4e8;
-            --dark-gray: #24292e;
+            --light-gray: #f7f9fc;
+            --medium-gray: #e4e7eb;
+            --dark-gray: #4a5568;
+            --text-color: #2d3748;
             --white: #ffffff;
-            --success-green: #28a745;
+            --success-green: #38a169;
+            --error-red: #e53e3e;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --border-radius: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--light-gray);
-            color: var(--dark-gray);
+            color: var(--text-color);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* --- LAYOUT PRINCIPALE --- */
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-        header { background-color: var(--brand-blue); color: var(--white); padding: 25px 30px; text-align: center; border-bottom: 5px solid var(--brand-yellow); }
-        header h1 { font-size: 2rem; margin-bottom: 0.25rem; font-weight: 700; }
-        header p { font-size: 1.1rem; color: var(--brand-yellow); font-weight: 600; }
-        main { padding: 30px 0; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
         
-        /* --- SEZIONE UPLOAD --- */
-        .upload-section { background-color: var(--white); padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); text-align: center; }
-        .upload-section h2 { font-size: 1.5rem; margin-bottom: 20px; color: var(--brand-blue); }
+        header {
+            background-color: var(--brand-blue);
+            color: var(--white);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 6px solid var(--brand-yellow);
+        }
+        header h1 { font-size: 2.25rem; font-weight: 700; }
+        header p { font-size: 1.1rem; color: #d1d5db; margin-top: 0.25rem; }
+        
+        main { padding: 2.5rem 0; }
+        
+        .upload-section {
+            background-color: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            border: 1px solid var(--medium-gray);
+        }
+        .upload-section h2 { font-size: 1.75rem; margin-bottom: 1.5rem; color: var(--brand-blue); font-weight: 600; }
         input[type="file"] { display: none; }
-        .upload-button { display: inline-block; background-color: var(--brand-yellow); color: var(--brand-blue); padding: 12px 25px; border-radius: 5px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease; border: 2px solid var(--brand-yellow); }
-        .upload-button:hover { background-color: #e0d300; transform: translateY(-2px); }
-        .file-info { margin-top: 15px; color: #666; font-style: italic; }
-
-        /* --- SEZIONE RISULTATI --- */
-        #results-container { margin-top: 30px; display: none; }
-        .report-title { text-align: center; color: var(--brand-blue); font-size: 1.75rem; font-weight: 700; margin-bottom: 25px; }
-        .result-card { background-color: var(--white); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); margin-bottom: 20px; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--medium-gray); padding-bottom: 15px; margin-bottom: 15px; }
-        .result-card h3 { color: var(--brand-blue); font-size: 1.25rem; border-left: 4px solid var(--brand-yellow); padding-left: 15px; }
-        .copy-button { background-color: transparent; border: 1px solid var(--medium-gray); border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; text-decoration: none; }
-        .copy-button:hover { background-color: #f0f0f0; border-color: var(--brand-blue); }
-        .copy-button svg { width: 16px; height: 16px; fill: #555; transition: fill 0.2s ease; }
-        .copy-button:hover svg { fill: var(--brand-blue); }
-        .card-content { font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; color: var(--dark-gray); }
-        #total-posts { font-size: 1.5rem; font-weight: 700; color: var(--brand-blue); }
         
-        /* --- NUOVI STILI PER LA TABELLA DETTAGLIO --- */
-        #breakdown-title { margin-top: 40px; }
-        .breakdown-table { background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
-        .breakdown-row { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--medium-gray); }
-        .breakdown-row:last-child { border-bottom: none; }
-        .breakdown-row:nth-child(even) { background-color: #fcfcfc; }
-        .breakdown-row.header { font-weight: 700; color: var(--brand-blue); background-color: #f0f2f5; border-bottom: 2px solid var(--medium-gray); }
-        .topic-cell { flex: 2; font-weight: 600; padding-right: 15px; }
-        .channel-cell { flex: 3; padding-right: 15px; word-break: break-all; }
-        .button-cell { flex: 1.2; display: flex; justify-content: flex-end; gap: 8px; }
+        .upload-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--brand-yellow);
+            color: var(--brand-blue);
+            padding: 0.8rem 1.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid var(--brand-yellow);
+        }
+        .upload-button:hover { background-color: #e0d300; transform: translateY(-2px); box-shadow: 0 7px 14px rgba(0,0,0,0.1); }
+        .upload-button svg { width: 20px; height: 20px; }
+        .file-info { margin-top: 1rem; color: var(--dark-gray); }
 
-        /* --- RESPONSIVE DESIGN --- */
+        #results-container { margin-top: 2.5rem; display: none; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { text-align: center; color: var(--brand-blue); font-size: 1.8rem; font-weight: 700; margin-bottom: 2rem; }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-card {
+            background-color: var(--white);
+            padding: 1.75rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--medium-gray);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        .result-card h3 { color: var(--brand-blue); font-size: 1.1rem; font-weight: 600; }
+        
+        .copy-button {
+            background-color: transparent;
+            border: 1px solid var(--medium-gray);
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .copy-button:hover { background-color: #f0f2f5; border-color: var(--brand-blue); }
+        .copy-button svg { width: 18px; height: 18px; fill: #555; transition: fill 0.2s ease; }
+        .copy-button:hover svg { fill: var(--brand-blue); }
+        
+        .card-content { font-size: 1rem; white-space: pre-wrap; word-wrap: break-word; color: var(--dark-gray); }
+        #total-posts { font-size: 2.5rem; font-weight: 700; color: var(--brand-blue); }
+        #platform-count { font-weight: 500; }
+        #topic-list { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; line-height: 1.7; }
+        
+        .breakdown-table {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--medium-gray);
+            overflow: hidden;
+        }
+        .breakdown-row { display: flex; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid var(--medium-gray); transition: background-color 0.2s; }
+        .breakdown-row:last-child { border-bottom: none; }
+        .breakdown-row:hover { background-color: #fcfcfd; }
+        .breakdown-row.header { font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--brand-blue); background-color: #f8f9fa; border-bottom: 2px solid var(--medium-gray); }
+        .topic-cell { flex: 2; font-weight: 600; padding-right: 1.5rem; }
+        .channel-cell { flex: 3; padding-right: 1.5rem; color: var(--dark-gray); }
+        .button-cell { flex: 1.2; display: flex; justify-content: flex-end; gap: 0.5rem; }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--error-red);
+            color: white;
+            padding: 0.8rem 1.25rem;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .toast.show { opacity: 1; visibility: visible; bottom: 30px; }
+
         @media (max-width: 768px) {
-            .container { padding: 10px; }
-            header { padding: 20px; }
+            .container { padding: 1.5rem 1rem; }
+            header { padding: 1.5rem; }
             header h1 { font-size: 1.8rem; }
-            header p { font-size: 1rem; }
-            .report-title { font-size: 1.5rem; }
-            .upload-section, .result-card { padding: 20px; }
-            .result-card h3 { font-size: 1.15rem; }
-            .breakdown-row { flex-wrap: wrap; padding: 10px; }
+            .upload-section { padding: 1.5rem; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .breakdown-row { flex-wrap: wrap; padding: 1rem; }
             .topic-cell, .channel-cell { flex: 1 1 100%; padding-right: 0; }
-            .channel-cell { margin-top: 5px; }
-            .button-cell { flex: 1 1 100%; justify-content: flex-start; margin-top: 10px; }
+            .channel-cell { margin-top: 0.5rem; font-size: 0.95rem; }
+            .button-cell { flex: 1 1 100%; justify-content: flex-start; margin-top: 1rem; }
         }
     </style>
 </head>
@@ -94,55 +177,63 @@
 
     <header>
         <h1>Report Giornaliero</h1>
-        <p>Argomenti trattati e numero post</p>
+        <p>Analisi automatica di post e argomenti</p>
     </header>
 
     <div class="container">
         <main>
             <section class="upload-section">
                 <h2>Carica il tuo file</h2>
-                <label for="file-input" class="upload-button" id="upload-button-label">Seleziona file Excel</label>
+                <label for="file-input" class="upload-button" id="upload-button-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                    <span>Seleziona file Excel</span>
+                </label>
                 <input type="file" id="file-input" accept=".xlsx, .xls">
                 <p class="file-info" id="file-info-text">Nessun file selezionato.</p>
             </section>
 
             <section id="results-container">
-                <h2 id="report-title" class="report-title"></h2>
+                <h2 id="report-title" class="section-title"></h2>
                 
-                <div class="result-card">
-                    <div class="card-header">
-                        <h3>Totale Post e Condivisioni</h3>
-                        <button class="copy-button" data-target="#total-posts" title="Copia totale post"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
+                <div class="summary-grid">
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3>Totale Post</h3>
+                             <button class="copy-button" data-target="#total-posts" title="Copia totale post"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                        <div class="card-content" id="total-posts"></div>
                     </div>
-                    <div class="card-content" id="total-posts"></div>
+
+                    <div class="result-card">
+                        <div class="card-header">
+                            <h3>Post per Canale</h3>
+                            <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
+                        </div>
+                        <div class="card-content" id="platform-count"></div>
+                    </div>
                 </div>
 
                 <div class="result-card">
                     <div class="card-header">
-                        <h3>Post per Canale Social</h3>
-                        <button class="copy-button" data-target="#platform-count" title="Copia conteggio canali"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
-                    </div>
-                    <div class="card-content" id="platform-count"></div>
-                </div>
-
-                <div class="result-card">
-                    <div class="card-header">
-                        <h3>Temi Trattati</h3>
-                         <button class="copy-button" data-target="#topic-list" title="Copia elenco temi"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span></button>
+                        <h3>Temi Trattati (Elenco)</h3>
+                         <button class="copy-button" data-target="#topic-list" title="Copia elenco temi"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></button>
                     </div>
                     <pre class="card-content" id="topic-list"></pre>
                 </div>
                 
-                <h2 id="breakdown-title" class="report-title" style="display: none;">Dettaglio per Argomento</h2>
+                <h2 class="section-title" id="breakdown-title" style="display: none; margin-top: 3rem;">Dettaglio per Argomento</h2>
                 <div id="topic-breakdown-container" class="breakdown-table"></div>
             </section>
         </main>
     </div>
+    
+    <div id="toast-notification" class="toast"></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const uploadButtonLabel = document.getElementById('upload-button-label');
+    const uploadButtonText = uploadButtonLabel.querySelector('span');
     const fileInfoText = document.getElementById('file-info-text');
     const resultsContainer = document.getElementById('results-container');
     
@@ -152,10 +243,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const topicListEl = document.getElementById('topic-list');
     const breakdownTitle = document.getElementById('breakdown-title');
     const topicBreakdownContainer = document.getElementById('topic-breakdown-container');
+    const toastEl = document.getElementById('toast-notification');
 
-    const originalButtonText = uploadButtonLabel.textContent;
+    const originalButtonText = uploadButtonText.textContent;
 
     fileInput.addEventListener('change', handleFile);
+
+    function showToast(message) {
+        if (!toastEl) return;
+        toastEl.textContent = message;
+        toastEl.classList.add('show');
+        setTimeout(() => {
+            toastEl.classList.remove('show');
+        }, 3000);
+    }
 
     function parseDate(excelDate) {
         if (excelDate instanceof Date && !isNaN(excelDate)) return excelDate;
@@ -186,9 +287,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = event.target.files[0];
         if (!file) return;
 
-        fileInfoText.textContent = `File selezionato: ${file.name}`;
-        uploadButtonLabel.textContent = 'Elaborazione...';
+        fileInfoText.textContent = `File: ${file.name}`;
+        uploadButtonText.textContent = 'Elaborazione...';
         uploadButtonLabel.style.cursor = 'not-allowed';
+        uploadButtonLabel.style.opacity = '0.7';
         resultsContainer.style.display = 'none';
 
         const reader = new FileReader();
@@ -200,16 +302,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
                 processData(jsonData);
-                uploadButtonLabel.textContent = 'File Elaborato!';
+                uploadButtonText.textContent = 'Completato!';
                 setTimeout(() => {
-                    uploadButtonLabel.textContent = originalButtonText;
+                    uploadButtonText.textContent = originalButtonText;
                     uploadButtonLabel.style.cursor = 'pointer';
-                }, 3000);
+                    uploadButtonLabel.style.opacity = '1';
+                }, 2500);
             } catch (error) {
                 console.error("Errore durante l'elaborazione del file:", error);
                 fileInfoText.textContent = 'Errore: il file non è valido o è corrotto.';
-                uploadButtonLabel.textContent = 'Riprova';
+                uploadButtonText.textContent = 'Riprova';
                 uploadButtonLabel.style.cursor = 'pointer';
+                uploadButtonLabel.style.opacity = '1';
             }
         };
         reader.readAsArrayBuffer(file);
@@ -225,35 +329,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedMax = formatDate(maxDate);
             dateString = (formattedMin === formattedMax) ? formattedMin : `${formattedMin} - ${formattedMax}`;
         }
-        reportTitleEl.textContent = `Report social ${dateString}`.trim();
+        reportTitleEl.textContent = `Report Social ${dateString}`.trim();
 
-        // Calcolo personalizzato dei post totali e per piattaforma per gestire la regola #WHA
         let totalPostsForCount = 0;
         const platformCounts = {};
-
         data.forEach(row => {
             const platform = String(row['Platform'] || '').trim();
-            const labels = String(row['Labels'] || '');
-
             if (platform) {
-                // 1. Conteggia sempre il post originale dalla riga del file Excel
                 platformCounts[platform] = (platformCounts[platform] || 0) + 1;
                 totalPostsForCount++;
-
-                // 2. Se è un post Youtube con etichetta #WHA, aggiungi un post Whatsapp in più
-                if (platform.toLowerCase() === 'youtube' && labels.includes('#WHA')) {
+                if (platform.toLowerCase() === 'youtube' && String(row['Labels'] || '').includes('#WHA')) {
                     const whatsappPlatform = 'Whatsapp';
                     platformCounts[whatsappPlatform] = (platformCounts[whatsappPlatform] || 0) + 1;
-                    totalPostsForCount++; // Incrementa anche il conteggio totale
+                    totalPostsForCount++;
                 }
             }
         });
-
         totalPostsEl.textContent = totalPostsForCount;
-        platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join(', ');
+        platformCountEl.textContent = Object.entries(platformCounts).sort((a, b) => a[0].localeCompare(b[0])).map(([p, c]) => `${p.charAt(0).toUpperCase() + p.slice(1).toLowerCase() === 'Twitter' ? 'X' : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()} ${c}`).join('  ·  ');
         
         const topicDetails = {};
-
         data.forEach(row => {
             const platform = String(row['Platform'] || '').trim();
             const author = String(row['Author name'] || '').trim();
@@ -262,9 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAuthorPoste = (author === 'Poste Italiane');
             const labelsText = row['Labels'];
             const hasIST = labelsText.includes('#IST');
-            const views = parseInt(row['Total impressions'] || 0, 10); 
-            
-            // Variabile per identificare la condizione speciale per Whatsapp
+            const views = parseInt(row['Total impressions'] || 0, 10);
             const isYoutubeWithWHA = platform.toLowerCase() === 'youtube' && labelsText.includes('#WHA');
             
             labelsText.split(';').forEach(part => {
@@ -274,110 +367,56 @@ document.addEventListener('DOMContentLoaded', () => {
                     const finalTopic = isAuthorPoste ? baseTopic : `${author} - ${baseTopic}`;
                     
                     if (!topicDetails[finalTopic]) {
-                        topicDetails[finalTopic] = { 
-                            counts: {}, 
-                            link: null, 
-                            isAuthorPoste: isAuthorPoste,
-                            author: author,
-                            hasIST: false,
-                            totalCount: 0,
-                            totalViews: 0
-                        };
+                        topicDetails[finalTopic] = { counts: {}, link: null, isAuthorPoste: isAuthorPoste, author: author, hasIST: false, totalCount: 0, totalViews: 0 };
                     }
+                    if (!topicDetails[finalTopic].link && row['View on platform']) topicDetails[finalTopic].link = row['View on platform'];
                     
-                    if (!topicDetails[finalTopic].link && row['View on platform']) {
-                        topicDetails[finalTopic].link = row['View on platform'];
-                    }
-                    
-                    // Incrementa sempre il conteggio per la piattaforma originale
                     topicDetails[finalTopic].counts[platform] = (topicDetails[finalTopic].counts[platform] || 0) + 1;
                     topicDetails[finalTopic].totalCount += 1;
                     topicDetails[finalTopic].totalViews += isNaN(views) ? 0 : views;
-                    if (hasIST) {
-                        topicDetails[finalTopic].hasIST = true;
-                    }
+                    if (hasIST) topicDetails[finalTopic].hasIST = true;
 
-                    // --- INIZIO MODIFICA DETTAGLIO ARGOMENTO ---
-                    // Se la condizione è verificata, aggiungi anche il conteggio per Whatsapp
                     if (isYoutubeWithWHA) {
                         const whatsappPlatform = 'Whatsapp';
                         topicDetails[finalTopic].counts[whatsappPlatform] = (topicDetails[finalTopic].counts[whatsappPlatform] || 0) + 1;
-                        topicDetails[finalTopic].totalCount += 1; // Incrementa anche il conteggio ricorrenza del tema
+                        topicDetails[finalTopic].totalCount += 1;
                     }
-                    // --- FINE MODIFICA DETTAGLIO ARGOMENTO ---
                 }
             });
         });
 
-        // --- NUOVA LOGICA DI ORDINAMENTO A GRUPPI ---
-
-        // 1. Definiamo la funzione di confronto per visualizzazioni, ricorrenza e ordine alfabetico
         const sortCriteria = (a, b) => {
             const detailA = topicDetails[a];
             const detailB = topicDetails[b];
-            
-            // Criterio 1: Visualizzazioni (decrescente)
-            if (detailA.totalViews !== detailB.totalViews) {
-                return detailB.totalViews - detailA.totalViews;
-            }
-            // Criterio 2: Ricorrenza (decrescente)
-            if (detailA.totalCount !== detailB.totalCount) {
-                return detailB.totalCount - detailA.totalCount;
-            }
-            // Criterio 3: Alfabetico (crescente)
+            if (detailA.totalViews !== detailB.totalViews) return detailB.totalViews - detailA.totalViews;
+            if (detailA.totalCount !== detailB.totalCount) return detailB.totalCount - detailA.totalCount;
             return a.localeCompare(b);
         };
         
-        // 2. Separiamo gli argomenti in 3 gruppi principali
-        const istTopics = [];
-        const posteTopics = [];
-        const otherAuthorTopics = [];
-
+        const istTopics = [], posteTopics = [], otherAuthorTopics = [];
         for (const topic in topicDetails) {
             const details = topicDetails[topic];
-            if (details.hasIST) {
-                istTopics.push(topic);
-            } else if (details.isAuthorPoste) {
-                posteTopics.push(topic);
-            } else {
-                otherAuthorTopics.push(topic);
-            }
+            if (details.hasIST) istTopics.push(topic);
+            else if (details.isAuthorPoste) posteTopics.push(topic);
+            else otherAuthorTopics.push(topic);
         }
         
-        // 3. Ordiniamo i primi due gruppi
         istTopics.sort(sortCriteria);
         posteTopics.sort(sortCriteria);
         
-        // 4. Gestiamo il gruppo "Altri Autori" con la logica di raggruppamento
         let sortedOtherAuthorTopics = [];
         if (otherAuthorTopics.length > 0) {
-            // Raggruppiamo gli argomenti per autore
             const authorGroups = otherAuthorTopics.reduce((acc, topic) => {
                 const author = topicDetails[topic].author;
-                if (!acc[author]) {
-                    acc[author] = [];
-                }
+                if (!acc[author]) acc[author] = [];
                 acc[author].push(topic);
                 return acc;
             }, {});
-
-            // Ordiniamo ogni lista di argomenti all'interno di un autore
-            for (const author in authorGroups) {
-                authorGroups[author].sort(sortCriteria);
-            }
-            
-            // Ordiniamo gli autori in base al numero di argomenti che hanno (decrescente)
-            const sortedAuthors = Object.keys(authorGroups).sort((a, b) => {
-                return authorGroups[b].length - authorGroups[a].length;
-            });
-            
-            // Appiattiamo la lista ordinata
+            for (const author in authorGroups) authorGroups[author].sort(sortCriteria);
+            const sortedAuthors = Object.keys(authorGroups).sort((a, b) => authorGroups[b].length - authorGroups[a].length);
             sortedOtherAuthorTopics = sortedAuthors.flatMap(author => authorGroups[author]);
         }
-
-        // 5. Uniamo i gruppi ordinati per ottenere la lista finale
         const sortedTopics = [...istTopics, ...posteTopics, ...sortedOtherAuthorTopics];
-
         topicListEl.textContent = sortedTopics.join('\n');
         
         topicBreakdownContainer.innerHTML = '';
@@ -395,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 let linkButtonHTML = '';
                 if (details.link) {
-                    linkButtonHTML = `<a href="${details.link}" target="_blank" rel="noopener noreferrer" class="copy-button" title="Apri post di esempio"><span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#555555"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8v-2z"/></svg></span></a>`;
+                    linkButtonHTML = `<a href="${details.link}" target="_blank" rel="noopener noreferrer" class="copy-button" title="Apri post di esempio"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#555555"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8v-2z"/></svg></a>`;
                 }
 
                 const row = document.createElement('div');
@@ -404,11 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="topic-cell">${topic}</div>
                     <div class="channel-cell">${channelString}</div>
                     <div class="button-cell">
-                        <button class="copy-button" title="Copia argomento" data-copy-text="${topic}">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px"><path d="M0 0h24v24H0z" fill="none"/><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg></span>
-                        </button>
-                        <button class="copy-button" title="Copia canali" data-copy-text="${channelString}">
-                            <span class="icon-copy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></span>
+                        <button class="copy-button" title="Copia argomento e canali" data-copy-text="${topic}: ${channelString}">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                         </button>
                         ${linkButtonHTML}
                     </div>
@@ -424,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', function(event) {
         const button = event.target.closest('.copy-button');
-        if (!button || button.tagName === 'A') return;
+        if (!button) return;
 
         let textToCopy;
         if (button.dataset.copyText) {
@@ -434,26 +470,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if(contentElement) textToCopy = contentElement.textContent;
         }
 
-        if (typeof textToCopy !== 'string') return;
+        if (typeof textToCopy !== 'string' || button.tagName === 'A') return;
 
         navigator.clipboard.writeText(textToCopy).then(() => {
-            const icon = button.querySelector('.icon-copy');
-            if (!icon) return;
-            const originalContent = icon.innerHTML;
-            icon.innerHTML = '✓';
-            icon.style.color = 'var(--success-green)';
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="var(--success-green)"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>';
             button.style.borderColor = 'var(--success-green)';
-            
             setTimeout(() => {
-                icon.innerHTML = originalContent;
-                icon.style.color = ''; 
+                button.innerHTML = originalContent;
                 button.style.borderColor = '';
             }, 2000);
         }).catch(err => {
             console.error('Errore durante la copia:', err);
-            // Sostituisco alert() con un feedback meno invasivo, ma lo lascio commentato
-            // in caso sia preferibile un avviso esplicito
-            // console.error("Impossibile copiare il testo."); 
+            showToast("Impossibile copiare il testo.");
         });
     });
 });
